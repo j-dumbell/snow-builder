@@ -1,138 +1,200 @@
-
-
-type PrefixKeys<T, S extends string> = {
-    [K in keyof T as `${S}_${string & K}`]: T[K]
-};
-
-type OmitNonStringKeys<T> = Omit<T, number | symbol>;
+import { OnlyString, PrefixKeys, Selectable } from './util-types';
 
 type JoinType = 'inner' | 'left' | 'right';
 
 type JoinConfig = {
-    joinType: JoinType;
-    leftTable: string;
-    rightTable: string;
-    leftField: string;
-    rightField: string;
-}
+  joinType: JoinType;
+  table: string;
+  alias: string;
+  leftField: string;
+  rightField: string;
+};
 
 type QueryConfig = {
-    select: string[];
-    from: string;
-    joins: JoinConfig[];
-    where?: string;
-    groupBy: string[];
-    having?: string;
-}
-
-class Builder {
-    constructor(public queryConfig: QueryConfig) {}
-}
+  select: string[];
+  from: string;
+  fromAlias: string;
+  joins: JoinConfig[];
+  where?: string;
+  groupBy: string[];
+  having?: string;
+};
 
 const compile = (queryConfig: QueryConfig): string => {
-    const { select, from, where, joins, groupBy, having } = queryConfig;
+  const { select, from, where, joins, groupBy, having } = queryConfig;
 
-    const selectSql = select.join(',');
-    const whereSql = where ? `WHERE ${where}` : '';
-    const groupBySql = groupBy ? `GROUP BY ${groupBy}` : '';
-    const havingSql = having ? `HAVING ${having}` : '';
+  const selectSql = select.join(',');
+  const whereSql = where ? `WHERE ${where}` : '';
+  const groupBySql = groupBy ? `GROUP BY ${groupBy}` : '';
+  const havingSql = having ? `HAVING ${having}` : '';
 
-    return `
+  return `
         SELECT ${selectSql}
         FROM ${from}
         ${whereSql}
         ${groupBySql}
         ${havingSql}  
-    `
-}
+    `;
+};
 
 class Db<DB> {
-    selectFrom<T extends keyof DB>(table: T): FromBuilder<DB, DB[T]> {
-        return new FromBuilder<DB, DB[T]>({from: table as string, groupBy: [], joins: [], select: []});
-    }
+  selectFrom<T extends keyof DB & string, S extends string>(
+    table: T,
+    alias: S,
+  ): FromBuilder<DB, PrefixKeys<DB[T], S>> {
+    return new FromBuilder<DB, PrefixKeys<DB[T], S>>({
+      from: table,
+      fromAlias: alias,
+      groupBy: [],
+      joins: [],
+      select: [],
+    });
+  }
 }
 
-class FromBuilder<DB, T> extends Builder {
-    innerJoin<L extends keyof DB, R extends keyof DB>(leftTable: L, rightTable: R, leftField: keyof DB[L], rightField: keyof DB[R]): FromBuilder<DB,  T & DB[L] & DB[R]> {
-        this.queryConfig.joins.push({
-            joinType: 'inner',
-            leftTable: leftTable as string,
-            rightTable: rightTable as string,
-            leftField: leftField as string,
-            rightField: rightField as string,
-        });
-        return new FromBuilder<DB, T & DB[L] & DB[R]>(this.queryConfig);
-    }
+export class FromBuilder<DB, T> {
+  constructor(public queryConfig: QueryConfig) {}
 
-    select(...fields: (keyof T)[]): SelectBuilder<T> {
-        return new SelectBuilder({...this.queryConfig, select: fields as string[]});
-    }
+  private join<
+    L extends keyof DB & string,
+    R extends keyof DB & string,
+    S extends string,
+  >(
+    joinType: JoinType,
+    table: R,
+    alias: S,
+    leftField: keyof T & string,
+    rightField: keyof PrefixKeys<DB[R], S> & string,
+  ): FromBuilder<DB, T & PrefixKeys<DB[R], S>> {
+    this.queryConfig.joins.push({
+      joinType,
+      table,
+      alias,
+      leftField,
+      rightField,
+    });
+    return new FromBuilder<DB, T & PrefixKeys<DB[R], S>>(this.queryConfig);
+  }
+
+  innerJoin<
+    L extends keyof DB & string,
+    R extends keyof DB & string,
+    S extends string,
+  >(
+    table: R,
+    alias: S,
+    leftField: keyof T & string,
+    rightField: keyof PrefixKeys<DB[R], S> & string,
+  ): FromBuilder<DB, T & PrefixKeys<DB[R], S>> {
+    return this.join<L, R, S>('inner', table, alias, leftField, rightField);
+  }
+
+  leftJoin<
+    L extends keyof DB & string,
+    R extends keyof DB & string,
+    S extends string,
+  >(
+    table: R,
+    alias: S,
+    leftField: keyof T & string,
+    rightField: keyof PrefixKeys<DB[R], S> & string,
+  ): FromBuilder<DB, T & PrefixKeys<DB[R], S>> {
+    return this.join<L, R, S>('left', table, alias, leftField, rightField);
+  }
+
+  rightJoin<
+    L extends keyof DB & string,
+    R extends keyof DB & string,
+    S extends string,
+  >(
+    table: R,
+    alias: S,
+    leftField: keyof T & string,
+    rightField: keyof PrefixKeys<DB[R], S> & string,
+  ): FromBuilder<DB, T & PrefixKeys<DB[R], S>> {
+    return this.join<L, R, S>('right', table, alias, leftField, rightField);
+  }
+
+  select(...fields: Selectable<T>[]): SelectBuilder<T> {
+    return new SelectBuilder({
+      ...this.queryConfig,
+      select: fields as string[],
+    });
+  }
 }
 
-class SelectBuilder<T> extends Builder {
-    where(raw: string): WhereBuilder {
-        return new WhereBuilder({...this.queryConfig, where: raw})
-    }
+class SelectBuilder<T> {
+  constructor(public queryConfig: QueryConfig) {}
 
-    groupBy(...fields: (keyof T)[]): GroupByBuilder {
-        return new GroupByBuilder({...this.queryConfig, groupBy: fields as string[]})
-    }
+  where(raw: string): WhereBuilder<T> {
+    return new WhereBuilder({ ...this.queryConfig, where: raw });
+  }
 
-    compile(): string {
-        return compile(this.queryConfig);
-    }
+  groupBy(...fields: (keyof T & string)[]): GroupByBuilder {
+    return new GroupByBuilder({ ...this.queryConfig, groupBy: fields });
+  }
+
+  compile(): string {
+    return compile(this.queryConfig);
+  }
 }
 
-class WhereBuilder extends Builder {
-    groupBy(...fields: string[]): GroupByBuilder {
-        return new GroupByBuilder({...this.queryConfig, groupBy: fields})
-    }
+class WhereBuilder<T> {
+  constructor(public queryConfig: QueryConfig) {}
 
-    compile(): string {
-        return compile(this.queryConfig);
-    }
+  groupBy(...fields: (keyof T & string)[]): GroupByBuilder {
+    return new GroupByBuilder({ ...this.queryConfig, groupBy: fields });
+  }
+
+  compile(): string {
+    return compile(this.queryConfig);
+  }
 }
 
-class GroupByBuilder extends Builder {
-    having(raw: string): HavingBuilder {
-        return new HavingBuilder({...this.queryConfig, having: raw})
-    }
+class GroupByBuilder {
+  constructor(public queryConfig: QueryConfig) {}
 
-    compile(): string {
-        return compile(this.queryConfig);
-    }
+  having(raw: string): HavingBuilder {
+    return new HavingBuilder({ ...this.queryConfig, having: raw });
+  }
+
+  compile(): string {
+    return compile(this.queryConfig);
+  }
 }
 
-class HavingBuilder extends Builder {
-    compile(): string {
-        return compile(this.queryConfig);
-    }
-}
+class HavingBuilder {
+  constructor(public queryConfig: QueryConfig) {}
 
+  compile(): string {
+    return compile(this.queryConfig);
+  }
+}
 
 type Users = {
-    userId: number;
-    email: string;
-    isVerified: boolean;
-}
+  userId: number;
+  email: string;
+  isVerified: boolean;
+};
 
 type Orders = {
-    orderId: number;
-    userId: number;
-    orderDate: Date;
-}
+  orderId: number;
+  userId: number;
+  orderDate: Date;
+};
 
 type AllTables = {
-    users: Users;
-    orders: Orders;
-}
+  users: Users;
+  orders: Orders;
+};
 
 const db = new Db<AllTables>();
 
-const query = db.selectFrom('users')
-    .innerJoin('users', 'orders', 'userId', 'orderId')
-    .select('userId', 'email')
-    .groupBy('userId')
-    .having('bas')
-    .compile()
-
+const query = db
+  .selectFrom('users', 'u')
+  .rightJoin('orders', 'o', 'u.userId', 'o.orderId')
+  .select('u.email', 'u.email', 'o.orderDate', 'o.userId')
+  .where('blah')
+  .groupBy('u.email')
+  .having('bas')
+  .compile();
