@@ -1,64 +1,111 @@
 
 
-class Db<DB> {
-    selectFrom<T extends keyof DB>(table: T): FromBuilder<DB, DB[T]> {
-        return new FromBuilder<DB, DB[T]>(table as string)
-    }
-}
+type PrefixKeys<T, S extends string> = {
+    [K in keyof T as `${S}_${string & K}`]: T[K]
+};
+
+type OmitNonStringKeys<T> = Omit<T, number | symbol>;
 
 type JoinType = 'inner' | 'left' | 'right';
 
 type JoinConfig = {
     joinType: JoinType;
-    table: string;
-    fromField: string;
-    toField: string;
+    leftTable: string;
+    rightTable: string;
+    leftField: string;
+    rightField: string;
 }
 
-class FromBuilder<DB, T> {
-    private readonly from: string;
-    private joinConfigs: JoinConfig[] = [];
+type QueryConfig = {
+    select: string[];
+    from: string;
+    joins: JoinConfig[];
+    where?: string;
+    groupBy: string[];
+    having?: string;
+}
 
-    constructor(from: string) {
-        this.from = from;
+class Builder {
+    constructor(public queryConfig: QueryConfig) {}
+}
+
+const compile = (queryConfig: QueryConfig): string => {
+    const { select, from, where, joins, groupBy, having } = queryConfig;
+
+    const selectSql = select.join(',');
+    const whereSql = where ? `WHERE ${where}` : '';
+    const groupBySql = groupBy ? `GROUP BY ${groupBy}` : '';
+    const havingSql = having ? `HAVING ${having}` : '';
+
+    return `
+        SELECT ${selectSql}
+        FROM ${from}
+        ${whereSql}
+        ${groupBySql}
+        ${havingSql}  
+    `
+}
+
+class Db<DB> {
+    selectFrom<T extends keyof DB>(table: T): FromBuilder<DB, DB[T]> {
+        return new FromBuilder<DB, DB[T]>({from: table as string, groupBy: [], joins: [], select: []});
     }
+}
 
-
-    private join(joinConfig: JoinConfig): void {
-        this.joinConfigs.push(joinConfig);
-    }
-
-    innerJoin<R extends keyof DB>(table: R, fromField: keyof T, toField: keyof DB[R]): this {
-        this.join({
+class FromBuilder<DB, T> extends Builder {
+    innerJoin<L extends keyof DB, R extends keyof DB>(leftTable: L, rightTable: R, leftField: keyof DB[L], rightField: keyof DB[R]): FromBuilder<DB,  T & DB[L] & DB[R]> {
+        this.queryConfig.joins.push({
             joinType: 'inner',
-            table: table as string,
-            fromField: fromField as string,
-            toField: toField as string
+            leftTable: leftTable as string,
+            rightTable: rightTable as string,
+            leftField: leftField as string,
+            rightField: rightField as string,
         });
-        return this;
+        return new FromBuilder<DB, T & DB[L] & DB[R]>(this.queryConfig);
     }
 
-    select<J extends keyof DB>(select: (keyof DB[J])[]): SelectBuilder {
-        return new SelectBuilder(this.from, select as string[]);
+    select(...fields: (keyof T)[]): SelectBuilder<T> {
+        return new SelectBuilder({...this.queryConfig, select: fields as string[]});
     }
 }
 
-class SelectBuilder {
-    private from: string;
-    private select: string[];
-
-    constructor(from: string, select: string[]) {
-        this.from = from;
-        this.select = select;
+class SelectBuilder<T> extends Builder {
+    where(raw: string): WhereBuilder {
+        return new WhereBuilder({...this.queryConfig, where: raw})
     }
 
-    build(): string {
-        const selectFields = this.select.join(',');
+    groupBy(...fields: (keyof T)[]): GroupByBuilder {
+        return new GroupByBuilder({...this.queryConfig, groupBy: fields as string[]})
+    }
 
-        return `
-            SELECT ${selectFields}
-            FROM ${this.from}
-        `
+    compile(): string {
+        return compile(this.queryConfig);
+    }
+}
+
+class WhereBuilder extends Builder {
+    groupBy(...fields: string[]): GroupByBuilder {
+        return new GroupByBuilder({...this.queryConfig, groupBy: fields})
+    }
+
+    compile(): string {
+        return compile(this.queryConfig);
+    }
+}
+
+class GroupByBuilder extends Builder {
+    having(raw: string): HavingBuilder {
+        return new HavingBuilder({...this.queryConfig, having: raw})
+    }
+
+    compile(): string {
+        return compile(this.queryConfig);
+    }
+}
+
+class HavingBuilder extends Builder {
+    compile(): string {
+        return compile(this.queryConfig);
     }
 }
 
@@ -83,6 +130,9 @@ type AllTables = {
 const db = new Db<AllTables>();
 
 const query = db.selectFrom('users')
-    .innerJoin('orders', 'userId', 'orderId')
-    .select<'users' | 'orders'>();
-console.log(query.build());
+    .innerJoin('users', 'orders', 'userId', 'orderId')
+    .select('userId', 'email')
+    .groupBy('userId')
+    .having('bas')
+    .compile()
+
