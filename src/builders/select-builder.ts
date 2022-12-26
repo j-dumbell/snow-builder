@@ -3,12 +3,14 @@ import { WhereBuilder } from './where-builder';
 import { GroupByBuilder } from './group-by-builder';
 import { compile } from '../compile';
 import { LimitBuilder } from './limit-builder';
+import { Connection } from 'snowflake-sdk';
+import { connectAndExecute, findOne } from '../sf-promise';
 
 export class SelectBuilder<Fields, RType> {
-  constructor(public queryConfig: QueryConfig) {}
+  constructor(public sf: Connection, public queryConfig: QueryConfig) {}
 
-  where(raw: string): WhereBuilder<Fields> {
-    return new WhereBuilder({ ...this.queryConfig, where: raw });
+  where(raw: string): WhereBuilder<Fields, RType> {
+    return new WhereBuilder(this.sf, { ...this.queryConfig, where: raw });
   }
 
   groupBy(...fields: (keyof Fields & string)[]): GroupByBuilder {
@@ -19,9 +21,12 @@ export class SelectBuilder<Fields, RType> {
     return new LimitBuilder({ ...this.queryConfig, limit: n });
   }
 
-  //ToDo
-  execute(): RType {
-    return '' as unknown as RType;
+  async findOne(): Promise<RType | undefined> {
+    return findOne<RType>(this.sf, compile(this.queryConfig));
+  }
+
+  findMany(): Promise<RType[] | undefined> {
+    return connectAndExecute<RType>(this.sf, compile(this.queryConfig));
   }
 
   compile(): string {

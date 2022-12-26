@@ -7,9 +7,10 @@ import {
   SelectableToObject,
 } from '../util-types';
 import { SelectBuilder } from './select-builder';
+import { Connection } from 'snowflake-sdk';
 
 export class FromBuilder<DB, Fields> {
-  constructor(public queryConfig: QueryConfig) {}
+  constructor(public sf: Connection, public queryConfig: QueryConfig) {}
 
   private join<TName extends keyof DB & string, TAlias extends string>(
     joinType: JoinType,
@@ -32,6 +33,7 @@ export class FromBuilder<DB, Fields> {
         : [joinConfig],
     };
     return new FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>>(
+      this.sf,
       newQueryConfig,
     );
   }
@@ -88,7 +90,7 @@ export class FromBuilder<DB, Fields> {
     fn: (f: SnowFns<Fields>) => Selected,
   ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>>;
   select<Selected extends Selectable<Fields>[]>(
-    arg: ((f: SnowFns<Fields>) => Selectable<Fields>[]) | Selectable<Fields>[],
+    arg: ((f: SnowFns<Fields>) => Selected) | Selected,
   ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>> {
     const select = Array.isArray(arg) ? arg : arg(snowFns<Fields>());
     return new SelectBuilder<Fields, SelectableToObject<Fields, Selected>>({
@@ -106,7 +108,7 @@ export class Expr<T> {
   }
 }
 
-export class Aliased<T, AName> {
+export class Aliased<T, AName extends string> {
   constructor(public sql: string, public alias: AName) {}
 }
 
@@ -123,13 +125,15 @@ const sum = <T>(
 };
 
 const count = <T>(
-  field: keyof T & string,
+  field?: keyof T & string,
   partitionBy?: (keyof T & string)[],
 ): Expr<number> => {
+  const fieldSql = field || '';
+
   const partitionBySql = partitionBy
     ? ` PARTITION BY ${partitionBy.join(',')}`
     : '';
-  const sql = `COUNT(${field})${partitionBySql}`;
+  const sql = `COUNT(${fieldSql})${partitionBySql}`;
 
   return new Expr<number>(sql);
 };

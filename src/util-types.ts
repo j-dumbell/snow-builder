@@ -1,4 +1,4 @@
-import { Aliased, Expr } from './builders/from-builder';
+import { Aliased } from './builders/from-builder';
 
 type KeysMatchingType<T, R> = keyof {
   [K in keyof T as T[K] extends R ? K : never]: T[K];
@@ -27,13 +27,15 @@ type InferColumnType<
   ? R
   : never;
 
+type StripAlias<T extends string> = T extends `${string}.${infer R}` ? R : T;
+
 type InferColumnName<
   Fields,
   T extends Selectable<Fields>,
 > = T extends StringKeys<Fields>
-  ? T
+  ? StripAlias<T>
   : T extends Aliased<unknown, infer R>
-  ? R
+  ? StripAlias<R>
   : never;
 
 export type SelectableToObject<

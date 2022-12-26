@@ -1,20 +1,23 @@
 export type Users = {
-  userId: number;
+  user_id: number;
   email: string;
-  isVerified: boolean;
+  is_verified: boolean;
+  first_name: string;
+  last_name: string;
 };
 
 export type Orders = {
-  orderId: number;
-  userId: number;
-  orderDate: Date;
+  order_id: number;
+  user_id: number;
+  order_date: Date;
+  total: number;
 };
 
 export type OrderItems = {
-  orderId: number;
-  sku: number;
+  order_id: number;
+  sku: string;
   quantity: number;
-  price: number;
+  line_total: number;
 };
 
 export type AllTables = {

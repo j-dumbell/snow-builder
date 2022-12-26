@@ -1,20 +1,6 @@
 import { PrefixKeys } from './util-types';
 import { FromBuilder, s } from './builders/from-builder';
-
-class Db<DB> {
-  selectFrom<TName extends keyof DB & string, TAlias extends string>(
-    table: TName,
-    alias: TAlias,
-  ): FromBuilder<DB, PrefixKeys<DB[TName], TAlias>> {
-    return new FromBuilder<DB, PrefixKeys<DB[TName], TAlias>>({
-      from: table,
-      fromAlias: alias,
-      groupBy: [],
-      joins: [],
-      select: [],
-    });
-  }
-}
+import { Connection, createConnection } from 'snowflake-sdk';
 
 type Users = {
   userId: number;
@@ -33,7 +19,16 @@ type AllTables = {
   orders: Orders;
 };
 
-const db = new Db<AllTables>();
+const conn: Connection = createConnection({
+  database: undefined,
+  password: '',
+  role: undefined,
+  schema: undefined,
+  username: '',
+  warehouse: undefined,
+});
+
+const db = new Db<AllTables>(conn);
 
 const query = db
   .selectFrom('users', 'u')
@@ -44,7 +39,7 @@ const query = db
     s('asd').as('asd'),
     f.toDate('u.email').as('poop'),
   ])
-  .execute();
+  .findOne();
 
 // .groupBy('u.email')
 // .having('bas')
