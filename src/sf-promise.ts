@@ -1,11 +1,11 @@
 import { Connection, SnowflakeError, Statement } from 'snowflake-sdk';
 
 export const connect = (conn: Connection): Promise<void> =>
-  new Promise((resolve, reject) => {
-    conn.connect((err: SnowflakeError | undefined, conn: Connection) =>
-      err ? resolve() : reject(err),
-    );
-  });
+  new Promise((resolve, reject) =>
+    conn.connect((err: SnowflakeError | undefined) =>
+      err ? reject(err) : resolve(),
+    ),
+  );
 
 export const execute = <T>(
   conn: Connection,
@@ -36,3 +36,10 @@ export const findOne = async <T>(
   const result = await connectAndExecute<T>(conn, sqlText);
   return result && result[0];
 };
+
+export const destroy = (conn: Connection): Promise<void> =>
+  new Promise((resolve, reject) =>
+    conn.destroy((err: SnowflakeError | undefined) =>
+      err ? reject(err) : resolve(),
+    ),
+  );

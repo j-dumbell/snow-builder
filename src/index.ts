@@ -1,6 +1,7 @@
 import { PrefixKeys } from './util-types';
 import { FromBuilder, s } from './builders/from-builder';
 import { Connection, createConnection } from 'snowflake-sdk';
+import { Db } from './db';
 
 type Users = {
   userId: number;

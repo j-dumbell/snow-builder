@@ -1,23 +1,29 @@
 import { Connection, createConnection } from 'snowflake-sdk';
 import { AllTables } from './fixtures';
 import { Db } from '../src/db';
-import { seed } from './seed';
+import { roleName, seed } from './seed';
 import { getEnvOrThrow } from '../src/utils';
+import { destroy } from '../src/sf-promise';
 
 describe('SF IT', () => {
   let db: Db<AllTables>;
+  let conn: Connection;
 
   beforeAll(async () => {
-    const conn: Connection = createConnection({
+    conn = createConnection({
       account: getEnvOrThrow('ACCOUNT'),
-      username: getEnvOrThrow('USERNAME'),
-      password: getEnvOrThrow('PASSWORD'),
-      role: getEnvOrThrow('ROLE'),
+      username: getEnvOrThrow('IT_USERNAME'),
+      password: getEnvOrThrow('IT_PASSWORD'),
+      role: roleName,
     });
 
     await seed(conn);
 
     db = new Db<AllTables>(conn);
+  });
+
+  afterAll(async () => {
+    await destroy(conn);
   });
 
   it('findOne', async () => {

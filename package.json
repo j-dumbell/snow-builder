@@ -4,6 +4,7 @@
     "@types/snowflake-sdk": "^1.6.11",
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
+    "dotenv": "^16.0.3",
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^8.5.0",
     "jest": "^29.3.1",
@@ -16,7 +17,8 @@
     "lint": "eslint . --ext .ts",
     "test": "jest",
     "tsc": "tsc",
-    "ts-node": "ts-node"
+    "ts-node": "ts-node",
+    "bootstrap": "ts-node test/bootstrap.ts"
   },
   "dependencies": {
     "snowflake-sdk": "^1.6.17",

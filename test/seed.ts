@@ -1,10 +1,10 @@
-import { Connection } from 'snowflake-sdk';
+import { Connection, createConnection } from 'snowflake-sdk';
 import { connect, execute } from '../src/sf-promise';
 import { getEnvOrThrow } from '../src/utils';
 
 const dbName = 'db';
 const schemaName = 'schema';
-const roleName = 'it_role';
+export const roleName = 'it_role';
 const userName = 'it_user';
 const whName = 'wh';
 const dbSchemaRef = `${dbName}.${schemaName}`;
@@ -77,7 +77,14 @@ INSERT INTO ${dbSchemaRef}.order_items VALUES
   (2, 'paper', 1, 3.16);
 `;
 
-export const firstTimeSetup = async (conn: Connection): Promise<void> => {
+export const bootstrap = async (): Promise<void> => {
+  const conn = createConnection({
+    account: getEnvOrThrow('ACCOUNT'),
+    username: getEnvOrThrow('ADMIN_USERNAME'),
+    role: 'ACCOUNTADMIN',
+    password: getEnvOrThrow('ADMIN_PASSWORD'),
+  });
+
   await connect(conn);
   const statements: string[] = [
     createUser(getEnvOrThrow('IT_USERNAME'), getEnvOrThrow('IT_PASSWORD')),

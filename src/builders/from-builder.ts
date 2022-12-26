@@ -93,10 +93,13 @@ export class FromBuilder<DB, Fields> {
     arg: ((f: SnowFns<Fields>) => Selected) | Selected,
   ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>> {
     const select = Array.isArray(arg) ? arg : arg(snowFns<Fields>());
-    return new SelectBuilder<Fields, SelectableToObject<Fields, Selected>>({
-      ...this.queryConfig,
-      select,
-    });
+    return new SelectBuilder<Fields, SelectableToObject<Fields, Selected>>(
+      this.sf,
+      {
+        ...this.queryConfig,
+        select,
+      },
+    );
   }
 }
 
