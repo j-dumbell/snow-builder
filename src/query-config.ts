@@ -16,4 +16,5 @@ export type QueryConfig = {
   where?: string;
   groupBy?: string[];
   having?: string;
+  limit?: number;
 };

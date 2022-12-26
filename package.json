@@ -14,6 +14,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "test": "jest",
+    "tsc": "tsc",
     "ts-node": "ts-node"
   },
   "dependencies": {

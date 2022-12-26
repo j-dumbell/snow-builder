@@ -1,12 +1,12 @@
-import { OnlyString, PrefixKeys, Selectable } from './util-types';
-import { FromBuilder } from './builders/from-builder';
+import { PrefixKeys } from './util-types';
+import { FromBuilder, s } from './builders/from-builder';
 
 class Db<DB> {
-  selectFrom<T extends keyof DB & string, S extends string>(
-    table: T,
-    alias: S,
-  ): FromBuilder<DB, PrefixKeys<DB[T], S>> {
-    return new FromBuilder<DB, PrefixKeys<DB[T], S>>({
+  selectFrom<TName extends keyof DB & string, TAlias extends string>(
+    table: TName,
+    alias: TAlias,
+  ): FromBuilder<DB, PrefixKeys<DB[TName], TAlias>> {
+    return new FromBuilder<DB, PrefixKeys<DB[TName], TAlias>>({
       from: table,
       fromAlias: alias,
       groupBy: [],
@@ -38,10 +38,15 @@ const db = new Db<AllTables>();
 const query = db
   .selectFrom('users', 'u')
   .rightJoin('orders', 'o', 'u.userId', 'o.orderId')
-  .select('u.email', 'u.email', 'o.orderDate', 'o.userId')
-  // .where('blah')
-  .groupBy('u.email')
-  .having('bas')
-  .compile();
+  .select((f) => [
+    f.sum('o.orderId', ['u.userId', 'o.orderDate']).as('blah'),
+    'o.orderId',
+    s('asd').as('asd'),
+    f.toDate('u.email').as('poop'),
+  ])
+  .execute();
 
-console.log(query);
+// .groupBy('u.email')
+// .having('bas')
+// .limit(10)
+// .compile();

@@ -1,3 +1,5 @@
+import { Aliased, Expr } from './builders/from-builder';
+
 type KeysMatchingType<T, R> = keyof {
   [K in keyof T as T[K] extends R ? K : never]: T[K];
 } &
@@ -8,12 +10,38 @@ export type OnlyNumber<T> = KeysMatchingType<T, number>;
 export type OnlyBoolean<T> = KeysMatchingType<T, boolean>;
 export type OnlyDate<T> = KeysMatchingType<T, Date>;
 
+export type StringKeys<T> = keyof T & string;
+
 export type PrefixKeys<T, S extends string> = {
   [K in keyof T as `${S}.${string & K}`]: T[K];
 };
 
-export type Selectable<T> =
-  | keyof T
-  | `sum(${string & keyof T})`
-  | 'count()'
-  | `length(${OnlyString<T>})`;
+export type Selectable<T> = StringKeys<T> | Aliased<unknown, string>;
+
+type InferColumnType<
+  Fields,
+  T extends Selectable<Fields>,
+> = T extends StringKeys<Fields>
+  ? Fields[T]
+  : T extends Aliased<infer R, string>
+  ? R
+  : never;
+
+type InferColumnName<
+  Fields,
+  T extends Selectable<Fields>,
+> = T extends StringKeys<Fields>
+  ? T
+  : T extends Aliased<unknown, infer R>
+  ? R
+  : never;
+
+export type SelectableToObject<
+  Fields,
+  Selected extends Selectable<Fields>[],
+> = {
+  [K in Selected[number] as InferColumnName<Fields, K>]: InferColumnType<
+    Fields,
+    K
+  >;
+};
