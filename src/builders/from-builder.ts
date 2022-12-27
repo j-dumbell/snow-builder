@@ -128,7 +128,7 @@ const sum = <T>(
 };
 
 const count = <T>(
-  field?: keyof T & string,
+  field?: (keyof T & string) | '*',
   partitionBy?: (keyof T & string)[],
 ): Expr<number> => {
   const fieldSql = field || '';

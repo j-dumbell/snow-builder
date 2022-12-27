@@ -33,9 +33,9 @@ type InferColumnName<
   Fields,
   T extends Selectable<Fields>,
 > = T extends StringKeys<Fields>
-  ? StripAlias<T>
+  ? Uppercase<StripAlias<T>>
   : T extends Aliased<unknown, infer R>
-  ? StripAlias<R>
+  ? Uppercase<R>
   : never;
 
 export type SelectableToObject<

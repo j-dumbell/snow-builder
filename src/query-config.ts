@@ -1,3 +1,5 @@
+import { Aliased } from './builders/from-builder';
+
 export type JoinType = 'inner' | 'left' | 'right';
 
 export type JoinConfig = {
@@ -9,7 +11,7 @@ export type JoinConfig = {
 };
 
 export type QueryConfig = {
-  select: string[];
+  select: (string | Aliased<unknown, string>)[];
   from: string;
   fromAlias: string;
   joins?: JoinConfig[];

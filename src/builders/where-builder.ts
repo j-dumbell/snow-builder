@@ -3,7 +3,7 @@ import { QueryConfig } from '../query-config';
 import { GroupByBuilder } from './group-by-builder';
 import { LimitBuilder } from './limit-builder';
 import { Connection } from 'snowflake-sdk';
-import { connectAndExecute, findOne } from '../sf-promise';
+import { execute, findOne } from '../sf-promise';
 
 export class WhereBuilder<T, RType> {
   constructor(public sf: Connection, public queryConfig: QueryConfig) {}
@@ -24,7 +24,7 @@ export class WhereBuilder<T, RType> {
   }
 
   findMany(): Promise<RType[] | undefined> {
-    return connectAndExecute<RType>(this.sf, compile(this.queryConfig));
+    return execute<RType>(this.sf, compile(this.queryConfig));
   }
 
   compile(): string {

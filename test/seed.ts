@@ -2,19 +2,19 @@ import { Connection, createConnection } from 'snowflake-sdk';
 import { connect, execute } from '../src/sf-promise';
 import { getEnvOrThrow } from '../src/utils';
 
-const dbName = 'db';
-const schemaName = 'schema';
+export const dbName = 'test_db';
+export const schemaName = 'test_schema';
 export const roleName = 'it_role';
 const userName = 'it_user';
-const whName = 'wh';
+export const whName = 'wh';
 const dbSchemaRef = `${dbName}.${schemaName}`;
 
 const createUser = (username: string, password: string) => `
 CREATE OR REPLACE USER ${userName}
   LOGIN_NAME = ${username}
-  PASSWORD = ${password};
+  PASSWORD = '${password}';
 `;
-const createRole = `CREATE OR REPLACE ROLE ${roleName}`;
+const createRole = `CREATE OR REPLACE ROLE ${roleName};`;
 const createWH = `
 CREATE OR REPLACE WAREHOUSE ${whName} WITH
   WAREHOUSE_SIZE = XSMALL
@@ -26,7 +26,7 @@ const createSchema = `CREATE OR REPLACE SCHEMA ${dbName}.${schemaName};`;
 
 const grantWH = `GRANT USAGE ON WAREHOUSE ${whName} TO ROLE ${roleName};`;
 const grantDb = `GRANT USAGE ON DATABASE ${dbName} TO ROLE ${roleName};`;
-const grantSchema = `GRANT USAGE ON SCHEMA ${dbSchemaRef} TO ROLE ${roleName};`;
+const grantSchema = `GRANT ALL PRIVILEGES ON SCHEMA ${dbSchemaRef} TO ROLE ${roleName};`;
 const grantTables = `GRANT SELECT,INSERT,DELETE ON FUTURE TABLES IN SCHEMA ${dbSchemaRef} TO ROLE ${roleName};`;
 const grantRole = `GRANT ROLE ${roleName} TO USER ${userName}`;
 

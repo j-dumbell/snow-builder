@@ -4,7 +4,7 @@ import { GroupByBuilder } from './group-by-builder';
 import { compile } from '../compile';
 import { LimitBuilder } from './limit-builder';
 import { Connection } from 'snowflake-sdk';
-import { connectAndExecute, findOne } from '../sf-promise';
+import { execute, findOne } from '../sf-promise';
 
 export class SelectBuilder<Fields, RType> {
   constructor(public sf: Connection, public queryConfig: QueryConfig) {}
@@ -13,8 +13,11 @@ export class SelectBuilder<Fields, RType> {
     return new WhereBuilder(this.sf, { ...this.queryConfig, where: raw });
   }
 
-  groupBy(...fields: (keyof Fields & string)[]): GroupByBuilder {
-    return new GroupByBuilder({ ...this.queryConfig, groupBy: fields });
+  groupBy(...fields: (keyof Fields & string)[]): GroupByBuilder<RType> {
+    return new GroupByBuilder<RType>(this.sf, {
+      ...this.queryConfig,
+      groupBy: fields,
+    });
   }
 
   limit(n: number): LimitBuilder {
@@ -26,7 +29,7 @@ export class SelectBuilder<Fields, RType> {
   }
 
   findMany(): Promise<RType[] | undefined> {
-    return connectAndExecute<RType>(this.sf, compile(this.queryConfig));
+    return execute<RType>(this.sf, compile(this.queryConfig));
   }
 
   compile(): string {

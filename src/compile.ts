@@ -5,7 +5,12 @@ export const compile = (queryConfig: QueryConfig): string => {
   const { select, from, fromAlias, where, joins, groupBy, having } =
     queryConfig;
 
-  const selectSql = select.join(',\n\t');
+  const selectSql = select
+    .map((col) =>
+      typeof col === 'string' ? col : `${col.sql} as ${col.alias}`,
+    )
+    .join(', ');
+
   const joinSql = joins
     ? joins
         .map(

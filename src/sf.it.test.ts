@@ -1,11 +1,16 @@
 import { Connection, createConnection } from 'snowflake-sdk';
-import { AllTables } from './fixtures';
-import { Db } from '../src/db';
-import { roleName, seed } from './seed';
-import { getEnvOrThrow } from '../src/utils';
-import { destroy } from '../src/sf-promise';
+import { AllTables } from '../test/fixtures';
+import { Db } from './db';
+import { dbName, roleName, schemaName, seed, whName } from '../test/seed';
+import { getEnvOrThrow } from './utils';
+import { destroy } from './sf-promise';
+import * as dotenv from 'dotenv';
 
-describe('SF IT', () => {
+dotenv.config();
+
+jest.setTimeout(20 * 1000);
+
+describe.only('SF IT', () => {
   let db: Db<AllTables>;
   let conn: Connection;
 
@@ -15,10 +20,12 @@ describe('SF IT', () => {
       username: getEnvOrThrow('IT_USERNAME'),
       password: getEnvOrThrow('IT_PASSWORD'),
       role: roleName,
+      warehouse: whName,
+      database: dbName,
+      schema: schemaName,
     });
 
     await seed(conn);
-
     db = new Db<AllTables>(conn);
   });
 
@@ -30,15 +37,16 @@ describe('SF IT', () => {
     const actual = await db
       .selectFrom('orders', 'o')
       .leftJoin('users', 'u', 'o.user_id', 'u.user_id')
-      .select((f) => ['o.user_id', f.count().as('num_trans')])
-      .where('o.userId = 1')
+      .select((f) => [
+        'o.user_id',
+        f.count('*').as('num_trans'),
+        f.sum('o.total').as('total_spend'),
+      ])
+      .where('o.user_id = 1')
       .groupBy('o.user_id')
-      .findMany();
+      .findOne();
 
-    const expected: { userId: number; num_trans: number }[] = [
-      { userId: 1, num_trans: 1 },
-      { userId: 1, num_trans: 1 },
-    ];
+    const expected = { USER_ID: 1, NUM_TRANS: 2, TOTAL_SPEND: 24.66 };
     expect(actual).toEqual(expected);
   });
 });

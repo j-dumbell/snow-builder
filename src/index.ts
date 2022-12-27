@@ -1,5 +1,4 @@
-import { PrefixKeys } from './util-types';
-import { FromBuilder, s } from './builders/from-builder';
+import { s } from './builders/from-builder';
 import { Connection, createConnection } from 'snowflake-sdk';
 import { Db } from './db';
 
@@ -20,16 +19,7 @@ type AllTables = {
   orders: Orders;
 };
 
-const conn: Connection = createConnection({
-  database: undefined,
-  password: '',
-  role: undefined,
-  schema: undefined,
-  username: '',
-  warehouse: undefined,
-});
-
-const db = new Db<AllTables>(conn);
+const db = new Db<AllTables>({} as Connection);
 
 const query = db
   .selectFrom('users', 'u')

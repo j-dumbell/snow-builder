@@ -21,19 +21,11 @@ export const execute = <T>(
     conn.execute({ sqlText, complete });
   });
 
-export const connectAndExecute = async <T>(
-  conn: Connection,
-  sqlText: string,
-): Promise<T[] | undefined> => {
-  await connect(conn);
-  return execute(conn, sqlText);
-};
-
 export const findOne = async <T>(
   conn: Connection,
   sqlText: string,
 ): Promise<T | undefined> => {
-  const result = await connectAndExecute<T>(conn, sqlText);
+  const result = await execute<T>(conn, sqlText);
   return result && result[0];
 };
 
