@@ -23,9 +23,9 @@ jobs:
         uses: actions/checkout@v3
       - name: create .env file
         run: |
-          echo "ACCOUNT=$ACCOUNT" > .env
-          echo "IT_USERNAME=IT_USERNAME" > .env
-          echo "IT_PASSWORD=IT_PASSWORD" > .env
+          echo "ACCOUNT=$ACCOUNT" >> .env
+          echo "IT_USERNAME=IT_USERNAME" >> .env
+          echo "IT_PASSWORD=IT_PASSWORD" >> .env
       - name: 'cache Node modules'
         uses: actions/cache@v3.0.11
         with:
