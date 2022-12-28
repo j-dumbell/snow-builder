@@ -27,13 +27,15 @@ type InferColumnType<
   ? R
   : never;
 
-type StripAlias<T extends string> = T extends `${string}.${infer R}` ? R : T;
+export type StripPrefix<T extends string> = T extends `${string}.${infer R}`
+  ? R
+  : T;
 
 type InferColumnName<
   Fields,
   T extends Selectable<Fields>,
 > = T extends StringKeys<Fields>
-  ? Uppercase<StripAlias<T>>
+  ? Uppercase<StripPrefix<T>>
   : T extends Aliased<unknown, infer R>
   ? Uppercase<R>
   : never;
