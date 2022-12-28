@@ -54,13 +54,11 @@ describe.only('SF IT', () => {
   });
 
   it('findMany', async () => {
-    const query = await db
+    const actual = await db
       .selectFrom('orders', 'o')
       .innerJoin('users', 'u', 'o.user_id', 'u.user_id')
-      .select(['o.user_id', 'o.total', 'u.email', 'u.last_name']);
-
-    console.log(query.compile());
-    const actual = await query.findMany();
+      .select(['o.user_id', 'o.total', 'u.email', 'u.last_name'])
+      .findMany();
 
     const expected: typeof actual = [
       {
