@@ -18,7 +18,7 @@ export type PrefixKeys<T, S extends string> = {
 
 export type Selectable<T> = StringKeys<T> | Aliased<unknown, string>;
 
-type InferColumnType<
+export type InferColumnType<
   Fields,
   T extends Selectable<Fields>,
 > = T extends StringKeys<Fields>
@@ -31,7 +31,7 @@ export type StripPrefix<T extends string> = T extends `${string}.${infer R}`
   ? R
   : T;
 
-type InferColumnName<
+export type InferColumnName<
   Fields,
   T extends Selectable<Fields>,
 > = T extends StringKeys<Fields>

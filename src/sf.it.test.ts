@@ -46,7 +46,11 @@ describe.only('SF IT', () => {
       .groupBy('o.user_id')
       .findOne();
 
-    const expected = { USER_ID: 1, NUM_TRANS: 2, TOTAL_SPEND: 24.66 };
+    const expected: typeof actual = {
+      USER_ID: 1,
+      NUM_TRANS: 2,
+      TOTAL_SPEND: 24.66,
+    };
     expect(actual).toEqual(expected);
   });
 });
