@@ -7,7 +7,6 @@ import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
-
 jest.setTimeout(20 * 1000);
 
 describe.only('SF IT', () => {
@@ -51,6 +50,32 @@ describe.only('SF IT', () => {
       NUM_TRANS: 2,
       TOTAL_SPEND: 24.66,
     };
+    expect(actual).toEqual(expected);
+  });
+
+  it('findMany', async () => {
+    const query = await db
+      .selectFrom('orders', 'o')
+      .innerJoin('users', 'u', 'o.user_id', 'u.user_id')
+      .select(['o.user_id', 'o.total', 'u.email', 'u.last_name']);
+
+    console.log(query.compile());
+    const actual = await query.findMany();
+
+    const expected: typeof actual = [
+      {
+        USER_ID: 1,
+        TOTAL: 19.5,
+        EMAIL: 'jrogers@gmail.com',
+        LAST_NAME: 'Rogers',
+      },
+      {
+        USER_ID: 1,
+        TOTAL: 5.16,
+        EMAIL: 'jrogers@gmail.com',
+        LAST_NAME: 'Rogers',
+      },
+    ];
     expect(actual).toEqual(expected);
   });
 });

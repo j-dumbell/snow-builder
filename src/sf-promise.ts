@@ -15,7 +15,7 @@ export const execute = <T>(
     const complete = (
       err: SnowflakeError | undefined,
       stmt: Statement,
-      rows: any[] | undefined,
+      rows: unknown[] | undefined,
     ) => (err ? reject(err) : resolve(rows as T[] | undefined));
 
     conn.execute({ sqlText, complete });

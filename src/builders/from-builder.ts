@@ -111,6 +111,7 @@ export class Expr<T> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class Aliased<T, AName extends string> {
   constructor(public sql: string, public alias: AName) {}
 }

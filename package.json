@@ -18,7 +18,9 @@
     "test": "jest",
     "tsc": "tsc",
     "ts-node": "ts-node",
-    "bootstrap": "ts-node test/bootstrap.ts"
+    "bootstrap": "ts-node test/bootstrap.ts",
+    "prettier": "prettier --check '**.ts'",
+    "eslint": "eslint src/** test/**"
   },
   "dependencies": {
     "snowflake-sdk": "^1.6.17",

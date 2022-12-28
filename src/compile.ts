@@ -22,7 +22,7 @@ export const compile = (queryConfig: QueryConfig): string => {
     : '';
 
   const whereSql = where ? `WHERE ${where}` : '';
-  const groupBySql = groupBy ? `GROUP BY ${groupBy}` : '';
+  const groupBySql = groupBy?.length ? `GROUP BY ${groupBy}` : '';
   const havingSql = having ? `HAVING ${having}` : '';
 
   const sql = `

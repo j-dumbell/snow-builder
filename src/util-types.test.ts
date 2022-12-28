@@ -42,6 +42,7 @@ type TestType3 = {
   'users.age': number;
 };
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 describe('util-types', () => {
   describe('OnlyString', () => {
     it('OnlyString', () => {
