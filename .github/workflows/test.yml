@@ -10,8 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IT_USERNAME:
-  IT_PASSWORD:
+  ACCOUNT: ${{ secrets.ACCOUNT }}
+  IT_USERNAME: ${{ secrets.IT_USERNAME }}
+  IT_PASSWORD: ${{ secrets.IT_PASSWORD }}
 
 jobs:
   lint_test:
@@ -20,6 +21,11 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
+      - name: create .env file
+        run: |
+          echo "ACCOUNT=$ACCOUNT" > .env
+          echo "IT_USERNAME=IT_USERNAME" > .env
+          echo "IT_PASSWORD=IT_PASSWORD" > .env
       - name: 'cache Node modules'
         uses: actions/cache@v3.0.11
         with:
@@ -35,4 +41,4 @@ jobs:
       - name: prettier
         run: yarn prettier
       - name: test
-        run: 'yarn test'
+        run: yarn test
