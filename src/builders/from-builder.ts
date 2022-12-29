@@ -164,6 +164,8 @@ const toDate = <T>(field: OnlyString<T>): Expr<Date> =>
 export const s = (sql: string): Expr<unknown> => new Expr(sql);
 
 const snowFns = <T>() => ({
+  s: <Field extends keyof T & string>(field: Field) =>
+    new Expr<T[Field]>(field),
   sum: sum as typeof sum<T>,
   count: count as typeof count<T>,
   min: min as typeof min<T>,
