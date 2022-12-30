@@ -58,7 +58,7 @@ describe.only('SF IT', () => {
       const actual = await db
         .selectFrom('users', 'us')
         .select(['us.email'])
-        .where(`us.email = 'bloop'`)
+        .where((f) => f.c(f.len('us.first_name'), '=', f.len('us.email')))
         .findOne();
 
       expect(actual).toEqual(undefined);
@@ -99,7 +99,7 @@ describe.only('SF IT', () => {
       const actual = await db
         .selectFrom('orders', 'ord')
         .select(['ord.user_id'])
-        .where('ord.user_id = 5')
+        .where('ord.user_id', 'in', [100, 101])
         .findMany();
 
       expect(actual).toEqual([]);
