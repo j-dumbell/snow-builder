@@ -1,4 +1,5 @@
 import { Aliased } from './builders/from-builder';
+import { Condition } from './sf-functions';
 
 export type JoinType = 'inner' | 'left' | 'right';
 
@@ -15,7 +16,7 @@ export type QueryConfig = {
   from: string;
   fromAlias: string;
   joins?: JoinConfig[];
-  where?: string;
+  where?: string | Condition;
   groupBy?: string[];
   having?: string;
   limit?: number;

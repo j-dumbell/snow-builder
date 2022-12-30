@@ -1,6 +1,8 @@
 import { Aliased } from './builders/from-builder';
 
-type KeysMatchingType<T, R> = keyof {
+export type SFTypes = string | number | Date | boolean;
+
+export type KeysMatchingType<T, R> = keyof {
   [K in keyof T as T[K] extends R ? K : never]: T[K];
 } &
   string;
