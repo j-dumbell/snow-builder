@@ -1,15 +1,14 @@
-import { compile } from '../compile';
 import { QueryConfig } from '../query-config';
 import { LimitBuilder } from './limit-builder';
+import { Executable } from './executable';
+import { Connection } from 'snowflake-sdk';
 
-export class HavingBuilder {
-  constructor(public queryConfig: QueryConfig) {}
-
-  limit(n: number): LimitBuilder {
-    return new LimitBuilder({ ...this.queryConfig, limit: n });
+export class HavingBuilder<RType> extends Executable<RType> {
+  constructor(sf: Connection, queryConfig: QueryConfig) {
+    super(sf, queryConfig);
   }
 
-  compile(): string {
-    return compile(this.queryConfig);
+  limit(n: number): LimitBuilder<RType> {
+    return new LimitBuilder<RType>(this.sf, { ...this.queryConfig, limit: n });
   }
 }

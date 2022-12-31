@@ -21,6 +21,9 @@ export const execute = <T>(
     conn.execute({ sqlText, complete });
   });
 
+export const findMany = <T>(conn: Connection, sqlText: string): Promise<T[]> =>
+  execute(conn, sqlText) as Promise<T[]>;
+
 export const findOne = async <T>(
   conn: Connection,
   sqlText: string,

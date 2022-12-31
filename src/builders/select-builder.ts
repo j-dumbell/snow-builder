@@ -1,12 +1,11 @@
 import { QueryConfig } from '../query-config';
 import { WhereBuilder } from './where-builder';
 import { GroupByBuilder } from './group-by-builder';
-import { compile } from '../compile';
 import { LimitBuilder } from './limit-builder';
 import { Connection } from 'snowflake-sdk';
-import { execute, findOne } from '../sf-promise';
 import { Condition, whereFns, WhereFns } from '../sf-functions';
 import { KeysMatchingType } from '../util-types';
+import { Executable } from './executable';
 
 export type ComparisonOp =
   | '='
@@ -18,8 +17,10 @@ export type ComparisonOp =
   | 'in'
   | 'not in';
 
-export class SelectBuilder<Fields, RType> {
-  constructor(public sf: Connection, public queryConfig: QueryConfig) {}
+export class SelectBuilder<Fields, RType> extends Executable<RType> {
+  constructor(sf: Connection, queryConfig: QueryConfig) {
+    super(sf, queryConfig);
+  }
 
   where(sql: string): WhereBuilder<Fields, RType>;
   where<FName extends keyof Fields & string, Op extends ComparisonOp>(
@@ -54,19 +55,7 @@ export class SelectBuilder<Fields, RType> {
     });
   }
 
-  limit(n: number): LimitBuilder {
-    return new LimitBuilder({ ...this.queryConfig, limit: n });
-  }
-
-  async findOne(): Promise<RType | undefined> {
-    return findOne<RType>(this.sf, compile(this.queryConfig));
-  }
-
-  findMany(): Promise<RType[] | undefined> {
-    return execute<RType>(this.sf, compile(this.queryConfig));
-  }
-
-  compile(): string {
-    return compile(this.queryConfig);
+  limit(n: number): LimitBuilder<RType> {
+    return new LimitBuilder<RType>(this.sf, { ...this.queryConfig, limit: n });
   }
 }
