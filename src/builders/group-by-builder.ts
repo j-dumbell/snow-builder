@@ -1,30 +1,22 @@
-import { compile } from '../compile';
 import { QueryConfig } from '../query-config';
 import { HavingBuilder } from './having-builder';
 import { LimitBuilder } from './limit-builder';
 import { Connection } from 'snowflake-sdk';
-import { execute, findOne } from '../sf-promise';
+import { Executable } from './executable';
 
-export class GroupByBuilder<RType> {
-  constructor(public sf: Connection, public queryConfig: QueryConfig) {}
-
-  having(raw: string): HavingBuilder {
-    return new HavingBuilder({ ...this.queryConfig, having: raw });
+export class GroupByBuilder<RType> extends Executable<RType> {
+  constructor(sf: Connection, queryConfig: QueryConfig) {
+    super(sf, queryConfig);
   }
 
-  limit(n: number): LimitBuilder {
-    return new LimitBuilder({ ...this.queryConfig, limit: n });
+  having(raw: string): HavingBuilder<RType> {
+    return new HavingBuilder<RType>(this.sf, {
+      ...this.queryConfig,
+      having: raw,
+    });
   }
 
-  async findOne(): Promise<RType | undefined> {
-    return findOne<RType>(this.sf, compile(this.queryConfig));
-  }
-
-  findMany(): Promise<RType[] | undefined> {
-    return execute<RType>(this.sf, compile(this.queryConfig));
-  }
-
-  compile(): string {
-    return compile(this.queryConfig);
+  limit(n: number): LimitBuilder<RType> {
+    return new LimitBuilder<RType>(this.sf, { ...this.queryConfig, limit: n });
   }
 }
