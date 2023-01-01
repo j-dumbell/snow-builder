@@ -1,5 +1,11 @@
 import { JoinType, QueryConfig } from '../query-config';
-import { PrefixKeys, Selectable, SelectableToObject } from '../util-types';
+import {
+  IsValidAlias,
+  PrefixKeys,
+  Selectable,
+  SelectableToObject,
+  ValidFirstCharAlias,
+} from '../util-types';
 import { SelectBuilder } from './select-builder';
 import { Connection } from 'snowflake-sdk';
 import { selectFns, SelectFns } from '../sf-functions';
@@ -7,10 +13,13 @@ import { selectFns, SelectFns } from '../sf-functions';
 export class FromBuilder<DB, Fields> {
   constructor(public sf: Connection, public queryConfig: QueryConfig) {}
 
-  private join<TName extends keyof DB & string, TAlias extends string>(
+  private join<
+    TName extends keyof DB & string,
+    TAlias extends ValidFirstCharAlias,
+  >(
     joinType: JoinType,
     table: TName,
-    alias: TAlias,
+    alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
     rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
   ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
@@ -33,9 +42,12 @@ export class FromBuilder<DB, Fields> {
     );
   }
 
-  innerJoin<TName extends keyof DB & string, TAlias extends string>(
+  innerJoin<
+    TName extends keyof DB & string,
+    TAlias extends ValidFirstCharAlias,
+  >(
     table: TName,
-    alias: TAlias,
+    alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
     rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
   ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
@@ -48,9 +60,9 @@ export class FromBuilder<DB, Fields> {
     );
   }
 
-  leftJoin<TName extends keyof DB & string, TAlias extends string>(
+  leftJoin<TName extends keyof DB & string, TAlias extends ValidFirstCharAlias>(
     table: TName,
-    alias: TAlias,
+    alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
     rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
   ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
@@ -63,9 +75,12 @@ export class FromBuilder<DB, Fields> {
     );
   }
 
-  rightJoin<TName extends keyof DB & string, TAlias extends string>(
+  rightJoin<
+    TName extends keyof DB & string,
+    TAlias extends ValidFirstCharAlias,
+  >(
     table: TName,
-    alias: TAlias,
+    alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
     rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
   ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
@@ -102,12 +117,17 @@ export class Expr<T> {
   _type?: T;
   constructor(public sql: string) {}
 
-  as<AName extends string>(alias: AName): Aliased<T, AName> {
+  as<AName extends ValidFirstCharAlias>(
+    alias: IsValidAlias<AName, AName, never>,
+  ): Aliased<T, AName> {
     return new Aliased<T, AName>(this.sql, alias);
   }
 }
 
-export class Aliased<T, AName extends string> {
+export class Aliased<T, AName extends ValidFirstCharAlias> {
   _type?: T;
-  constructor(public sql: string, public alias: AName) {}
+  constructor(
+    public sql: string,
+    public alias: IsValidAlias<AName, AName, never>,
+  ) {}
 }

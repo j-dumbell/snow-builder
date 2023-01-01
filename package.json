@@ -17,6 +17,7 @@
     "lint": "eslint . --ext .ts",
     "test": "jest",
     "tsc": "tsc",
+    "build": "tsc --project tsconfig.build.json",
     "ts-node": "ts-node",
     "bootstrap": "ts-node test/bootstrap.ts",
     "prettier": "prettier --check '**.ts'",

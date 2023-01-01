@@ -1,6 +1,7 @@
 import {
   InferColumnName,
   InferColumnType,
+  IsValidAlias,
   OnlyBoolean,
   OnlyDate,
   OnlyNumber,
@@ -10,6 +11,7 @@ import {
   SelectableToObject,
   StringKeys,
   StripPrefix,
+  ValidFirstCharAlias,
 } from './util-types';
 import { Equal, Expect } from '../test/utils';
 import { Aliased } from './builders/from-builder';
@@ -97,7 +99,11 @@ describe('util-types', () => {
   describe('Selectable', () => {
     it('Selectable', () => {
       type Actual = Selectable<TestType2>;
-      type Expected = 'foo' | 'bar' | 'opt' | Aliased<unknown, string>;
+      type Expected =
+        | 'foo'
+        | 'bar'
+        | 'opt'
+        | Aliased<unknown, ValidFirstCharAlias>;
       type Assertion = Expect<Equal<Actual, Expected>>;
     });
   });
@@ -175,5 +181,27 @@ describe('util-types', () => {
       };
       type Assertion = Expect<Equal<Actual, Expected>>;
     });
+  });
+
+  describe('IsValidAlias', () => {
+    it('invalid character in string', () => {
+      type Actual = IsValidAlias<'ba!k'>;
+      type Assertion = Expect<Equal<Actual, false>>;
+    });
+
+    it('only letters', () => {
+      type Actual = IsValidAlias<'Abc1'>;
+      type Assertion = Expect<Equal<Actual, true>>;
+    });
+
+    it('starts with underscore', () => {
+      type Actual = IsValidAlias<'_1bC'>;
+      type Assertion = Expect<Equal<Actual, true>>;
+    });
+  });
+
+  it('compile error when starts with a number', () => {
+    // @ts-expect-error - see test name
+    type Actual = IsValidAlias<'1bCe'>;
   });
 });
