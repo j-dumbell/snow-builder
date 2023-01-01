@@ -1,5 +1,6 @@
 import { Aliased } from './builders/from-builder';
 import { Condition } from './sf-functions';
+import { ValidFirstCharAlias } from './util-types';
 
 export type JoinType = 'inner' | 'left' | 'right';
 
@@ -12,7 +13,7 @@ export type JoinConfig = {
 };
 
 export type QueryConfig = {
-  select: (string | Aliased<unknown, string>)[];
+  select: (string | Aliased<unknown, ValidFirstCharAlias>)[];
   from: string;
   fromAlias: string;
   joins?: JoinConfig[];

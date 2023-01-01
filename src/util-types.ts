@@ -1,7 +1,5 @@
 import { Aliased } from './builders/from-builder';
 
-export type SFTypes = string | number | Date | boolean;
-
 export type KeysMatchingType<T, R> = keyof {
   [K in keyof T as T[K] extends R ? K : never]: T[K];
 } &
@@ -18,14 +16,16 @@ export type PrefixKeys<T, S extends string> = {
   [K in keyof T as `${S}.${string & K}`]: T[K];
 };
 
-export type Selectable<T> = StringKeys<T> | Aliased<unknown, string>;
+export type Selectable<T> =
+  | StringKeys<T>
+  | Aliased<unknown, ValidFirstCharAlias>;
 
 export type InferColumnType<
   Fields,
   T extends Selectable<Fields>,
 > = T extends StringKeys<Fields>
   ? Fields[T]
-  : T extends Aliased<infer R, string>
+  : T extends Aliased<infer R, ValidFirstCharAlias>
   ? R
   : never;
 
@@ -51,3 +51,69 @@ export type SelectableToObject<
     K
   >;
 };
+
+type InvalidCharacter =
+  | '!'
+  | '@'
+  | '£'
+  | '%'
+  | '^'
+  | '&'
+  | '*'
+  | '('
+  | ')'
+  | '-'
+  | '+'
+  | '='
+  | '{'
+  | '['
+  | '}'
+  | ']'
+  | ';'
+  | ':'
+  | '"'
+  | "'"
+  | '|'
+  | '<'
+  | '.'
+  | '>'
+  | '?'
+  | '/';
+
+type Letters =
+  | 'a'
+  | 'b'
+  | 'c'
+  | 'd'
+  | 'e'
+  | 'f'
+  | 'g'
+  | 'h'
+  | 'i'
+  | 'j'
+  | 'k'
+  | 'l'
+  | 'm'
+  | 'n'
+  | 'o'
+  | 'p'
+  | 'q'
+  | 'r'
+  | 's'
+  | 't'
+  | 'u'
+  | 'v'
+  | 'w'
+  | 'x'
+  | 'y'
+  | 'z';
+
+export type ValidFirstChar = Letters | Uppercase<Letters> | '_';
+
+export type ValidFirstCharAlias = `${ValidFirstChar}${string}`;
+
+export type IsValidAlias<
+  S extends ValidFirstCharAlias,
+  IfTrue = true,
+  IfFalse = false,
+> = S extends `${string}${InvalidCharacter}${string}` ? IfFalse : IfTrue;
