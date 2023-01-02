@@ -39,6 +39,6 @@ jobs:
       - name: eslint
         run: 'yarn eslint'
       - name: prettier
-        run: yarn prettier
+        run: yarn prettier:check
       - name: test
         run: yarn test
