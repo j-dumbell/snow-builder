@@ -1,5 +1,5 @@
 {
-  "name": "snow-builder",
+  "name": "snow-builder2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Type-safe query builder library for Snowflake, with smart return type inference",
@@ -11,6 +11,9 @@
     "type": "git",
     "url": "https://github.com/j-dumbell/snow-builder.git"
   },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/jest": "^29.2.4",
     "@types/snowflake-sdk": "^1.6.11",
@@ -29,7 +32,7 @@
     "lint": "eslint . --ext .ts",
     "test": "jest",
     "tsc": "tsc",
-    "build": "tsc --project tsconfig.build.json",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json",
     "ts-node": "ts-node",
     "bootstrap": "ts-node test/bootstrap.ts",
     "prettier": "prettier",
