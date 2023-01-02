@@ -1,5 +1,5 @@
 {
-  "name": "snow-builder2",
+  "name": "snow-builder",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Type-safe query builder library for Snowflake, with smart return type inference",
