@@ -7,11 +7,6 @@ on:
     branch:
       - '**'
 
-# Stop tests running for older commits when a new one is added to the PR.
-concurrency:
-  group: ${{ github.head_ref }}
-  cancel-in-progress: true
-
 env:
   ACCOUNT: ${{ secrets.ACCOUNT }}
   IT_USERNAME: ${{ secrets.IT_USERNAME }}
