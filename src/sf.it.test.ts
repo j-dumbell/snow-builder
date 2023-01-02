@@ -5,7 +5,7 @@ import { dbName, roleName, schemaName, seed, whName } from '../test/seed';
 import { getEnvOrThrow } from './utils';
 import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
-import { execute } from './sf-promise'
+import { execute } from './sf-promise';
 
 dotenv.config();
 jest.setTimeout(20 * 1000);
@@ -47,7 +47,7 @@ describe.only('SF IT', () => {
           .where('o.user_id = 1')
           .groupBy('o.user_id')
           .findOne();
-  
+
         const expected: typeof actual = {
           USER_ID: 1,
           NUM_TRANS: 2,
@@ -55,14 +55,14 @@ describe.only('SF IT', () => {
         };
         expect(actual).toEqual(expected);
       });
-  
+
       it('where - no results', async () => {
         const actual = await db
           .selectFrom('users', 'us')
           .select(['us.email'])
           .where((f) => f.c(f.len('us.first_name'), '=', f.len('us.email')))
           .findOne();
-  
+
         expect(actual).toEqual(undefined);
       });
     });
@@ -79,7 +79,7 @@ describe.only('SF IT', () => {
             'u.last_name',
           ])
           .findMany();
-  
+
         const expected: typeof actual = [
           {
             USER_ID: 1,
@@ -96,43 +96,66 @@ describe.only('SF IT', () => {
         ];
         expect(actual).toEqual(expected);
       });
-  
+
       it('where - no results', async () => {
         const actual = await db
           .selectFrom('orders', 'ord')
           .select(['ord.user_id'])
           .where('ord.user_id', 'in', [100, 101])
           .findMany();
-  
+
         expect(actual).toEqual([]);
       });
     });
-  })
+  });
 
   describe('insertInto', () => {
-
     afterEach(async () => {
       await execute(conn, 'TRUNCATE TABLE currencies');
     });
 
     describe('from records', () => {
       it('should insert records when non-empty', async () => {
-        const usd: Currency = {full_name: 'United States Dollar', created_date: new Date('2022-10-01'), created_ts: new Date(), max_denom: 100, is_active: true};
-        const gbp: Currency = {full_name: 'Great British Pound', created_date: new Date('2021-11-30'), created_ts: new Date(), max_denom: 50, is_active: false};
+        const usd: Currency = {
+          full_name: 'United States Dollar',
+          created_date: new Date('2022-10-01'),
+          created_ts: new Date(),
+          max_denom: 100,
+          is_active: true,
+        };
+        const gbp: Currency = {
+          full_name: 'Great British Pound',
+          created_date: new Date('2021-11-30'),
+          created_ts: new Date(),
+          max_denom: 50,
+          is_active: false,
+        };
         const toInsert: Currency[] = [usd, gbp];
         await db.insertInto('currencies', toInsert);
-  
+
         const actual = await execute(conn, 'SELECT * FROM currencies;');
         const expected = [
-          {FULL_NAME: usd.full_name, CREATED_DATE: usd.created_date, CREATED_TS: usd.created_ts, MAX_DENOM: usd.max_denom, IS_ACTIVE: usd.is_active},
-          {FULL_NAME: gbp.full_name, CREATED_DATE: gbp.created_date, CREATED_TS: gbp.created_ts, MAX_DENOM: gbp.max_denom, IS_ACTIVE: gbp.is_active},
+          {
+            FULL_NAME: usd.full_name,
+            CREATED_DATE: usd.created_date,
+            CREATED_TS: usd.created_ts,
+            MAX_DENOM: usd.max_denom,
+            IS_ACTIVE: usd.is_active,
+          },
+          {
+            FULL_NAME: gbp.full_name,
+            CREATED_DATE: gbp.created_date,
+            CREATED_TS: gbp.created_ts,
+            MAX_DENOM: gbp.max_denom,
+            IS_ACTIVE: gbp.is_active,
+          },
         ];
         expect(actual).toEqual(expected);
       });
-  
+
       it('should do nothing when no records are provided', async () => {
         await db.insertInto('currencies', []);
-  
+
         const actual = await execute(conn, 'SELECT * FROM currencies;');
         expect(actual).toEqual([]);
       });
@@ -143,7 +166,7 @@ describe.only('SF IT', () => {
         const select = db
           .selectFrom('currencies', 'c')
           .select([
-            'c.created_date', 
+            'c.created_date',
             'c.created_ts',
             'c.full_name',
             'c.is_active',
@@ -151,8 +174,7 @@ describe.only('SF IT', () => {
           ]);
 
         await db.insertInto('currencies', select);
-      })
-    })
-
-  })
+      });
+    });
+  });
 });

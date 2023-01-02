@@ -20,7 +20,9 @@
     "build": "tsc --project tsconfig.build.json",
     "ts-node": "ts-node",
     "bootstrap": "ts-node test/bootstrap.ts",
-    "prettier": "prettier --check '**.ts'",
+    "prettier": "prettier",
+    "prettier:format": "prettier --write .",
+    "prettier:check": "prettier --check '**.ts'",
     "eslint": "eslint src/** test/**"
   },
   "dependencies": {

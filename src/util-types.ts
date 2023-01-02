@@ -1,12 +1,14 @@
 import { Aliased } from './builders/from-builder';
 
+export type SFType = string | number | boolean | Date;
+
 export type KeysMatchingType<T, R> = keyof {
   [K in keyof T as T[K] extends R ? K : never]: T[K];
 } &
   string;
 
 export type UpperCaseObjKey<T> = {
-  [K in keyof T as K extends string ? Uppercase<K> : never]: T[K]
+  [K in keyof T as K extends string ? Uppercase<K> : never]: T[K];
 };
 
 export type OnlyString<T> = KeysMatchingType<T, string>;

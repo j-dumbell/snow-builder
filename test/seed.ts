@@ -116,7 +116,9 @@ export const bootstrap = async (): Promise<void> => {
 export const seed = async (conn: Connection): Promise<void> => {
   await connect(conn);
   await Promise.all(
-    [usersDDL, ordersDDL, orderItemsDDL, currenciesDDL].map((sql) => execute(conn, sql)),
+    [usersDDL, ordersDDL, orderItemsDDL, currenciesDDL].map((sql) =>
+      execute(conn, sql),
+    ),
   );
   await Promise.all(
     [usersInsert, ordersInsert, orderItemsInsert].map((sql) =>

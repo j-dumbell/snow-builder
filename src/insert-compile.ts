@@ -1,6 +1,7 @@
 import { orderObjectByKeys } from './utils';
-
-export type SFType = string | number | boolean | Date;
+import { SFType } from './util-types';
+import { Executable } from './builders/executable';
+import { orderFieldNames } from './select-compile';
 
 const sfTypeToSql = (value: SFType): string => {
   if (typeof value === 'string') {
@@ -10,21 +11,30 @@ const sfTypeToSql = (value: SFType): string => {
     return String(value);
   }
   return `'${value.toISOString()}'`;
-}
+};
 
 export const recordToSql = (record: Record<string, SFType>): string => {
   const ordered = orderObjectByKeys(record, false)
-    .map(([,value]) => sfTypeToSql(value))
+    .map(([, value]) => sfTypeToSql(value))
     .join(',');
-  return `(${ordered})`
+  return `(${ordered})`;
 };
 
-export const insertCompile = (table: string, records: Record<string, SFType>[]): string => {
+export const insertRecordsSql = (
+  table: string,
+  records: Record<string, SFType>[],
+): string => {
   const columns = Object.keys(records[0] as object).sort();
   const columnSql = `(${columns.join(',')})`;
-  const valuesSql = records
-    .map(recordToSql)
-    .join(',');
+  const valuesSql = records.map(recordToSql).join(',');
 
   return `INSERT INTO ${table} ${columnSql} VALUES ${valuesSql}`;
-}
+};
+
+export const insertSelectSql = (
+  table: string,
+  executable: Executable<unknown>,
+): string => {
+  const fieldNames = orderFieldNames(executable.queryConfig).join(',');
+  return `INSERT INTO ${table} (${fieldNames}) ${executable.compile()}`;
+};

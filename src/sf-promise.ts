@@ -7,7 +7,7 @@ export const connect = (conn: Connection): Promise<void> =>
     ),
   );
 
-export const execute = <T = never>(
+export const execute = <T = unknown>(
   conn: Connection,
   sqlText: string,
 ): Promise<T[] | undefined> =>
@@ -21,10 +21,12 @@ export const execute = <T = never>(
     conn.execute({ sqlText, complete });
   });
 
-export const findMany = <T>(conn: Connection, sqlText: string): Promise<T[]> =>
-  execute(conn, sqlText) as Promise<T[]>;
+export const findMany = <T = unknown>(
+  conn: Connection,
+  sqlText: string,
+): Promise<T[]> => execute(conn, sqlText) as Promise<T[]>;
 
-export const findOne = async <T>(
+export const findOne = async <T = unknown>(
   conn: Connection,
   sqlText: string,
 ): Promise<T | undefined> => {

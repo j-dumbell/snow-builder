@@ -1,10 +1,15 @@
 import { Connection } from 'snowflake-sdk';
 import { FromBuilder } from './builders/from-builder';
-import { IsValidAlias, PrefixKeys, UpperCaseObjKey, ValidFirstCharAlias } from './util-types';
-import { insertCompile, SFType } from './insert-compile';
+import {
+  IsValidAlias,
+  PrefixKeys,
+  UpperCaseObjKey,
+  ValidFirstCharAlias,
+} from './util-types';
+import { insertRecordsSql, insertSelectSql } from './insert-compile';
 import { execute } from './sf-promise';
 import { Executable } from './builders/executable';
-import { orderFieldNames } from './select-compile';
+import { SFType } from './util-types';
 
 type Table = Record<string, SFType>;
 
@@ -42,11 +47,10 @@ export class Db<DB extends Record<string, Table>> {
       return;
     }
 
-    const sql = Array.isArray(arg2) 
-      ? insertCompile(table, arg2) 
-      : `INSERT INTO ${table} (${orderFieldNames(arg2.queryConfig).join(',')}) ${arg2.compile()}`
-    console.log(sql);
+    const sql = Array.isArray(arg2)
+      ? insertRecordsSql(table, arg2)
+      : insertSelectSql(table, arg2);
+
     await execute(this.sf, sql);
   }
-
 }

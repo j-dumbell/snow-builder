@@ -48,7 +48,7 @@ type TestType3 = {
 type TestType4 = {
   aBc: number;
   C_dE: boolean;
-}
+};
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 describe('util-types', () => {
@@ -217,9 +217,8 @@ describe('util-types', () => {
       type Expected = {
         ABC: number;
         C_DE: boolean;
-      }
+      };
       type Assertion = Expect<Equal<Expected, Actual>>;
     });
   });
-
 });

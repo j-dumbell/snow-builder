@@ -58,15 +58,6 @@ export type Condition = {
   expr2: unknown;
 };
 
-type Condition1<Fields, FName extends keyof Fields & string> = {
-  expr1: FName | Expr<Fields[FName]>;
-  op: ComparisonOp;
-  expr2:
-    | KeysMatchingType<Fields, Fields[FName]>
-    | Expr<Fields[FName]>
-    | Fields[FName];
-};
-
 export const selectFns = <T>() => ({
   s: <Field extends keyof T & string>(field: Field) =>
     new Expr<T[Field]>(field),

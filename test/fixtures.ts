@@ -21,12 +21,12 @@ export type OrderItems = {
 };
 
 export type Currency = {
-  full_name: string,
-  max_denom: number,
-  is_active: boolean,
-  created_date: Date,
-  created_ts: Date,
-}
+  full_name: string;
+  max_denom: number;
+  is_active: boolean;
+  created_date: Date;
+  created_ts: Date;
+};
 
 export type AllTables = {
   users: Users;
