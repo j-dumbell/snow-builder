@@ -5,7 +5,17 @@ import { Expr } from './builders/from-builder';
 const toSql = (s: string | Expr<unknown>): string =>
   typeof s === 'string' ? s : s.sql;
 
-export const compile = (queryConfig: QueryConfig): string => {
+const stripAlias = (field: string): string =>
+  field.includes('.') ? field.split('.')[1] : field;
+
+export const orderFieldNames = (queryConfig: QueryConfig): string[] =>
+  queryConfig.select
+    .map((field) =>
+      typeof field === 'string' ? stripAlias(field) : field.alias,
+    )
+    .sort();
+
+export const selectCompile = (queryConfig: QueryConfig): string => {
   const { select, from, fromAlias, where, joins, groupBy, having } =
     queryConfig;
 

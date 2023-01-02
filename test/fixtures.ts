@@ -20,8 +20,17 @@ export type OrderItems = {
   line_total: number;
 };
 
+export type Currency = {
+  full_name: string;
+  max_denom: number;
+  is_active: boolean;
+  created_date: Date;
+  created_ts: Date;
+};
+
 export type AllTables = {
   users: Users;
   orders: Orders;
   order_items: OrderItems;
+  currencies: Currency;
 };

@@ -12,6 +12,7 @@ import {
   StringKeys,
   StripPrefix,
   ValidFirstCharAlias,
+  UpperCaseObjKey,
 } from './util-types';
 import { Equal, Expect } from '../test/utils';
 import { Aliased } from './builders/from-builder';
@@ -42,6 +43,11 @@ type TestType2 = {
 type TestType3 = {
   name: string;
   'users.age': number;
+};
+
+type TestType4 = {
+  aBc: number;
+  C_dE: boolean;
 };
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -198,10 +204,21 @@ describe('util-types', () => {
       type Actual = IsValidAlias<'_1bC'>;
       type Assertion = Expect<Equal<Actual, true>>;
     });
+
+    it('compile error when starts with a number', () => {
+      // @ts-expect-error - see test name
+      type Actual = IsValidAlias<'1bCe'>;
+    });
   });
 
-  it('compile error when starts with a number', () => {
-    // @ts-expect-error - see test name
-    type Actual = IsValidAlias<'1bCe'>;
+  describe('UpperCaseObjKey', () => {
+    it('should set all object keys to upper case', () => {
+      type Actual = UpperCaseObjKey<TestType4>;
+      type Expected = {
+        ABC: number;
+        C_DE: boolean;
+      };
+      type Assertion = Expect<Equal<Expected, Actual>>;
+    });
   });
 });

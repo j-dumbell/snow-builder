@@ -50,21 +50,12 @@ const toDate = <T>(field: OnlyString<T>): Expr<Date> =>
 const length = <T>(field: OnlyString<T>): Expr<number> =>
   new Expr<number>(`LENGTH(${field})`);
 
-export const s = (sql: string): Expr<unknown> => new Expr(sql);
+export const s = <FType = unknown>(sql: string): Expr<FType> => new Expr(sql);
 
 export type Condition = {
   expr1: string | Expr<unknown>;
   op: ComparisonOp;
   expr2: unknown;
-};
-
-type Condition1<Fields, FName extends keyof Fields & string> = {
-  expr1: FName | Expr<Fields[FName]>;
-  op: ComparisonOp;
-  expr2:
-    | KeysMatchingType<Fields, Fields[FName]>
-    | Expr<Fields[FName]>
-    | Fields[FName];
 };
 
 export const selectFns = <T>() => ({

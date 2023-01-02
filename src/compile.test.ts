@@ -1,5 +1,5 @@
 import { QueryConfig } from './query-config';
-import { compile } from './compile';
+import { selectCompile } from './select-compile';
 import { format } from 'sql-formatter';
 
 describe('compile', () => {
@@ -32,6 +32,6 @@ describe('compile', () => {
         HAVING COUNT() > 1;
     `);
 
-    expect(compile(queryConfig)).toEqual(expected);
+    expect(selectCompile(queryConfig)).toEqual(expected);
   });
 });
