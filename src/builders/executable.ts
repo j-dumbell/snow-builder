@@ -18,3 +18,5 @@ export class Executable<RType> {
     return selectCompile(this.queryConfig);
   }
 }
+
+export type InferRType<T> = T extends Executable<infer R> ? R : never;

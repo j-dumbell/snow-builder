@@ -110,18 +110,49 @@ describe.only('SF IT', () => {
   })
 
   describe('insertInto', () => {
-    it('from values', async () => {
-      const usd: Currency = {full_name: 'United States Dollar', created_date: new Date('2022-10-01'), created_ts: new Date(), max_denom: 100, is_active: true};
-      const gbp: Currency = {full_name: 'Great British Pound', created_date: new Date('2021-11-30'), created_ts: new Date(), max_denom: 50, is_active: false};
-      const toInsert: Currency[] = [usd, gbp];
-      await db.insertInto('currencies', toInsert);
 
-      const actual = await execute(conn, 'SELECT * FROM currencies;');
-      const expected = [
-        {FULL_NAME: usd.full_name, CREATED_DATE: usd.created_date, CREATED_TS: usd.created_ts, MAX_DENOM: usd.max_denom, IS_ACTIVE: usd.is_active},
-        {FULL_NAME: gbp.full_name, CREATED_DATE: gbp.created_date, CREATED_TS: gbp.created_ts, MAX_DENOM: gbp.max_denom, IS_ACTIVE: gbp.is_active},
-      ];
-      expect(actual).toEqual(expected);
+    afterEach(async () => {
+      await execute(conn, 'TRUNCATE TABLE currencies');
     });
+
+    describe('from records', () => {
+      it('should insert records when non-empty', async () => {
+        const usd: Currency = {full_name: 'United States Dollar', created_date: new Date('2022-10-01'), created_ts: new Date(), max_denom: 100, is_active: true};
+        const gbp: Currency = {full_name: 'Great British Pound', created_date: new Date('2021-11-30'), created_ts: new Date(), max_denom: 50, is_active: false};
+        const toInsert: Currency[] = [usd, gbp];
+        await db.insertInto('currencies', toInsert);
+  
+        const actual = await execute(conn, 'SELECT * FROM currencies;');
+        const expected = [
+          {FULL_NAME: usd.full_name, CREATED_DATE: usd.created_date, CREATED_TS: usd.created_ts, MAX_DENOM: usd.max_denom, IS_ACTIVE: usd.is_active},
+          {FULL_NAME: gbp.full_name, CREATED_DATE: gbp.created_date, CREATED_TS: gbp.created_ts, MAX_DENOM: gbp.max_denom, IS_ACTIVE: gbp.is_active},
+        ];
+        expect(actual).toEqual(expected);
+      });
+  
+      it('should do nothing when no records are provided', async () => {
+        await db.insertInto('currencies', []);
+  
+        const actual = await execute(conn, 'SELECT * FROM currencies;');
+        expect(actual).toEqual([]);
+      });
+    });
+
+    describe('from select', () => {
+      it('currencies', async () => {
+        const select = db
+          .selectFrom('currencies', 'c')
+          .select([
+            'c.created_date', 
+            'c.created_ts',
+            'c.full_name',
+            'c.is_active',
+            'c.max_denom',
+          ]);
+
+        await db.insertInto('currencies', select);
+      })
+    })
+
   })
 });

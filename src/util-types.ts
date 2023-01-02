@@ -5,6 +5,10 @@ export type KeysMatchingType<T, R> = keyof {
 } &
   string;
 
+export type UpperCaseObjKey<T> = {
+  [K in keyof T as K extends string ? Uppercase<K> : never]: T[K]
+};
+
 export type OnlyString<T> = KeysMatchingType<T, string>;
 export type OnlyNumber<T> = KeysMatchingType<T, number>;
 export type OnlyBoolean<T> = KeysMatchingType<T, boolean>;

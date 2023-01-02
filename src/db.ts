@@ -1,8 +1,10 @@
 import { Connection } from 'snowflake-sdk';
 import { FromBuilder } from './builders/from-builder';
-import { IsValidAlias, PrefixKeys, ValidFirstCharAlias } from './util-types';
-import { recordToSql, SFType } from './insert-compile';
+import { IsValidAlias, PrefixKeys, UpperCaseObjKey, ValidFirstCharAlias } from './util-types';
+import { insertCompile, SFType } from './insert-compile';
 import { execute } from './sf-promise';
+import { Executable } from './builders/executable';
+import { orderFieldNames } from './select-compile';
 
 type Table = Record<string, SFType>;
 
@@ -26,19 +28,25 @@ export class Db<DB extends Record<string, Table>> {
 
   async insertInto<TName extends keyof DB & string>(
     table: TName,
+    asSelect: Executable<UpperCaseObjKey<DB[TName]>>,
+  ): Promise<void>;
+  async insertInto<TName extends keyof DB & string>(
+    table: TName,
     records: DB[TName][],
+  ): Promise<void>;
+  async insertInto<TName extends keyof DB & string>(
+    table: TName,
+    arg2: DB[TName][] | Executable<UpperCaseObjKey<DB[TName]>>,
   ): Promise<void> {
-    if (records.length === 0) {
+    if (Array.isArray(arg2) && arg2.length === 0) {
       return;
     }
-    const columns = Object.keys(records[0] as object).sort();
-    const columnSql = `(${columns.join(',')})`;
-    const valuesSql = records
-      .map(recordToSql)
-      .join(',')
 
-    const sql = `INSERT INTO ${table} ${columnSql} VALUES ${valuesSql}`;
+    const sql = Array.isArray(arg2) 
+      ? insertCompile(table, arg2) 
+      : `INSERT INTO ${table} (${orderFieldNames(arg2.queryConfig).join(',')}) ${arg2.compile()}`
     console.log(sql);
     await execute(this.sf, sql);
   }
+
 }

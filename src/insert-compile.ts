@@ -18,3 +18,13 @@ export const recordToSql = (record: Record<string, SFType>): string => {
     .join(',');
   return `(${ordered})`
 };
+
+export const insertCompile = (table: string, records: Record<string, SFType>[]): string => {
+  const columns = Object.keys(records[0] as object).sort();
+  const columnSql = `(${columns.join(',')})`;
+  const valuesSql = records
+    .map(recordToSql)
+    .join(',');
+
+  return `INSERT INTO ${table} ${columnSql} VALUES ${valuesSql}`;
+}

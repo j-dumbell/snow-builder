@@ -50,7 +50,7 @@ const toDate = <T>(field: OnlyString<T>): Expr<Date> =>
 const length = <T>(field: OnlyString<T>): Expr<number> =>
   new Expr<number>(`LENGTH(${field})`);
 
-export const s = (sql: string): Expr<unknown> => new Expr(sql);
+export const s = <FType = unknown>(sql: string): Expr<FType> => new Expr(sql);
 
 export type Condition = {
   expr1: string | Expr<unknown>;
