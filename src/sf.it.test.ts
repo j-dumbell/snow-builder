@@ -1,10 +1,11 @@
 import { Connection, createConnection } from 'snowflake-sdk';
-import { AllTables } from '../test/fixtures';
+import { AllTables, Currency } from '../test/fixtures';
 import { Db } from './db';
 import { dbName, roleName, schemaName, seed, whName } from '../test/seed';
 import { getEnvOrThrow } from './utils';
 import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
+import { execute } from './sf-promise'
 
 dotenv.config();
 jest.setTimeout(20 * 1000);
@@ -32,77 +33,95 @@ describe.only('SF IT', () => {
     await destroy(conn);
   });
 
-  describe('findOne', () => {
-    it('leftJoin, where, groupBy', async () => {
-      const actual = await db
-        .selectFrom('orders', 'o')
-        .leftJoin('users', 'u', 'o.user_id', 'u.user_id')
-        .select((f) => [
-          'o.user_id',
-          f.count('*').as('num_trans'),
-          f.sum('o.total').as('total_spend'),
-        ])
-        .where('o.user_id = 1')
-        .groupBy('o.user_id')
-        .findOne();
-
-      const expected: typeof actual = {
-        USER_ID: 1,
-        NUM_TRANS: 2,
-        TOTAL_SPEND: 24.66,
-      };
-      expect(actual).toEqual(expected);
+  describe('selectFrom', () => {
+    describe('findOne', () => {
+      it('leftJoin, where, groupBy', async () => {
+        const actual = await db
+          .selectFrom('orders', 'o')
+          .leftJoin('users', 'u', 'o.user_id', 'u.user_id')
+          .select((f) => [
+            'o.user_id',
+            f.count('*').as('num_trans'),
+            f.sum('o.total').as('total_spend'),
+          ])
+          .where('o.user_id = 1')
+          .groupBy('o.user_id')
+          .findOne();
+  
+        const expected: typeof actual = {
+          USER_ID: 1,
+          NUM_TRANS: 2,
+          TOTAL_SPEND: 24.66,
+        };
+        expect(actual).toEqual(expected);
+      });
+  
+      it('where - no results', async () => {
+        const actual = await db
+          .selectFrom('users', 'us')
+          .select(['us.email'])
+          .where((f) => f.c(f.len('us.first_name'), '=', f.len('us.email')))
+          .findOne();
+  
+        expect(actual).toEqual(undefined);
+      });
     });
 
-    it('where - no results', async () => {
-      const actual = await db
-        .selectFrom('users', 'us')
-        .select(['us.email'])
-        .where((f) => f.c(f.len('us.first_name'), '=', f.len('us.email')))
-        .findOne();
-
-      expect(actual).toEqual(undefined);
+    describe('findMany', () => {
+      it('inner join', async () => {
+        const actual = await db
+          .selectFrom('orders', 'o')
+          .innerJoin('users', 'u', 'o.user_id', 'u.user_id')
+          .select((f) => [
+            'o.user_id',
+            f.s('o.total').as('order_total'),
+            'u.email',
+            'u.last_name',
+          ])
+          .findMany();
+  
+        const expected: typeof actual = [
+          {
+            USER_ID: 1,
+            ORDER_TOTAL: 19.5,
+            EMAIL: 'jrogers@gmail.com',
+            LAST_NAME: 'Rogers',
+          },
+          {
+            USER_ID: 1,
+            ORDER_TOTAL: 5.16,
+            EMAIL: 'jrogers@gmail.com',
+            LAST_NAME: 'Rogers',
+          },
+        ];
+        expect(actual).toEqual(expected);
+      });
+  
+      it('where - no results', async () => {
+        const actual = await db
+          .selectFrom('orders', 'ord')
+          .select(['ord.user_id'])
+          .where('ord.user_id', 'in', [100, 101])
+          .findMany();
+  
+        expect(actual).toEqual([]);
+      });
     });
-  });
+  })
 
-  describe('findMany', () => {
-    it('inner join', async () => {
-      const actual = await db
-        .selectFrom('orders', 'o')
-        .innerJoin('users', 'u', 'o.user_id', 'u.user_id')
-        .select((f) => [
-          'o.user_id',
-          f.s('o.total').as('order_total'),
-          'u.email',
-          'u.last_name',
-        ])
-        .findMany();
+  describe('insertInto', () => {
+    it('from values', async () => {
+      const usd: Currency = {full_name: 'United States Dollar', created_date: new Date('2022-10-01'), created_ts: new Date(), max_denom: 100, is_active: true};
+      const gbp: Currency = {full_name: 'Great British Pound', created_date: new Date('2021-11-30'), created_ts: new Date(), max_denom: 50, is_active: false};
+      const toInsert: Currency[] = [usd, gbp];
+      await db.insertInto('currencies', toInsert);
 
-      const expected: typeof actual = [
-        {
-          USER_ID: 1,
-          ORDER_TOTAL: 19.5,
-          EMAIL: 'jrogers@gmail.com',
-          LAST_NAME: 'Rogers',
-        },
-        {
-          USER_ID: 1,
-          ORDER_TOTAL: 5.16,
-          EMAIL: 'jrogers@gmail.com',
-          LAST_NAME: 'Rogers',
-        },
+      const actual = await execute(conn, 'SELECT * FROM currencies;');
+      const expected = [
+        {FULL_NAME: usd.full_name, CREATED_DATE: usd.created_date, CREATED_TS: usd.created_ts, MAX_DENOM: usd.max_denom, IS_ACTIVE: usd.is_active},
+        {FULL_NAME: gbp.full_name, CREATED_DATE: gbp.created_date, CREATED_TS: gbp.created_ts, MAX_DENOM: gbp.max_denom, IS_ACTIVE: gbp.is_active},
       ];
       expect(actual).toEqual(expected);
     });
-
-    it('where - no results', async () => {
-      const actual = await db
-        .selectFrom('orders', 'ord')
-        .select(['ord.user_id'])
-        .where('ord.user_id', 'in', [100, 101])
-        .findMany();
-
-      expect(actual).toEqual([]);
-    });
-  });
+  })
 });

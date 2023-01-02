@@ -5,7 +5,7 @@ import { Expr } from './builders/from-builder';
 const toSql = (s: string | Expr<unknown>): string =>
   typeof s === 'string' ? s : s.sql;
 
-export const compile = (queryConfig: QueryConfig): string => {
+export const selectCompile = (queryConfig: QueryConfig): string => {
   const { select, from, fromAlias, where, joins, groupBy, having } =
     queryConfig;
 

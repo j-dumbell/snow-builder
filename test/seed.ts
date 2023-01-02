@@ -58,6 +58,16 @@ CREATE OR REPLACE TABLE ${dbSchemaRef}.order_items (
 );
 `;
 
+const currenciesDDL = `
+CREATE OR REPLACE TABLE ${dbSchemaRef}.currencies (
+  full_name VARCHAR,
+  max_denom DECIMAL(38,2),
+  is_active BOOLEAN,
+  created_date DATE,
+  created_ts TIMESTAMP
+);
+`;
+
 const usersInsert = `
 INSERT INTO ${dbSchemaRef}.users VALUES 
   (1, 'jrogers@gmail.com', true, 'James', 'Rogers'),
@@ -106,7 +116,7 @@ export const bootstrap = async (): Promise<void> => {
 export const seed = async (conn: Connection): Promise<void> => {
   await connect(conn);
   await Promise.all(
-    [usersDDL, ordersDDL, orderItemsDDL].map((sql) => execute(conn, sql)),
+    [usersDDL, ordersDDL, orderItemsDDL, currenciesDDL].map((sql) => execute(conn, sql)),
   );
   await Promise.all(
     [usersInsert, ordersInsert, orderItemsInsert].map((sql) =>

@@ -7,7 +7,7 @@ export const connect = (conn: Connection): Promise<void> =>
     ),
   );
 
-export const execute = <T>(
+export const execute = <T = never>(
   conn: Connection,
   sqlText: string,
 ): Promise<T[] | undefined> =>
