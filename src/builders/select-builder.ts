@@ -56,8 +56,8 @@ export class SelectBuilder<Fields, RType> extends Executable<RType> {
     return new WhereBuilder(this.sf, { ...this.queryConfig, where });
   }
 
-  groupBy(...fields: (keyof Fields & string)[]): GroupByBuilder<RType> {
-    return new GroupByBuilder<RType>(this.sf, {
+  groupBy(...fields: (keyof Fields & string)[]): GroupByBuilder<Fields, RType> {
+    return new GroupByBuilder<Fields, RType>(this.sf, {
       ...this.queryConfig,
       groupBy: fields,
     });

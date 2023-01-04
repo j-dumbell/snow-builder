@@ -94,11 +94,11 @@ export class FromBuilder<DB, Fields> {
   }
 
   select<Selected extends Selectable<Fields>[]>(
-    selectable: ((f: SelectFns<Fields>) => Selected) | Selected,
+    selected: ((f: SelectFns<Fields>) => Selected) | Selected,
   ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>> {
-    const select = Array.isArray(selectable)
-      ? selectable
-      : selectable(selectFns<Fields>());
+    const select = Array.isArray(selected)
+      ? selected
+      : selected(selectFns<Fields>());
     return new SelectBuilder<Fields, SelectableToObject<Fields, Selected>>(
       this.sf,
       {
