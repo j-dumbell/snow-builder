@@ -1,4 +1,4 @@
-import { Aliased } from './builders/from-builder';
+import { Aliased, Ordered } from './builders/from-builder';
 import { Condition } from './sf-functions';
 import { ValidFirstCharAlias } from './util-types';
 
@@ -20,5 +20,6 @@ export type QueryConfig = {
   where?: string | Condition;
   groupBy?: string[];
   having?: string;
+  orderBy?: Ordered[];
   limit?: number;
 };

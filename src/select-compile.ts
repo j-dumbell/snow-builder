@@ -16,8 +16,17 @@ export const orderFieldNames = (queryConfig: QueryConfig): string[] =>
     .sort();
 
 export const selectCompile = (queryConfig: QueryConfig): string => {
-  const { select, from, fromAlias, where, joins, groupBy, having } =
-    queryConfig;
+  const {
+    select,
+    from,
+    fromAlias,
+    where,
+    joins,
+    groupBy,
+    having,
+    orderBy,
+    limit,
+  } = queryConfig;
 
   const selectSql = select
     .map((col) =>
@@ -47,8 +56,12 @@ export const selectCompile = (queryConfig: QueryConfig): string => {
     whereSql = '';
   }
 
-  const groupBySql = groupBy?.length ? `GROUP BY ${groupBy}` : '';
+  const groupBySql = groupBy?.length ? `GROUP BY ${groupBy.join(',')}` : '';
   const havingSql = having ? `HAVING ${having}` : '';
+  const orderBySql = orderBy?.length
+    ? `ORDER BY ${orderBy.map((o) => `${o.sql} ${o.order}`).join(',')}`
+    : '';
+  const limitSql = limit ? `LIMIT ${limit}` : '';
 
   const sql = `
     SELECT ${selectSql}
@@ -56,7 +69,9 @@ export const selectCompile = (queryConfig: QueryConfig): string => {
     ${joinSql}
     ${whereSql}
     ${groupBySql}
-    ${havingSql};  
+    ${havingSql}
+    ${orderBySql}
+    ${limitSql};  
   `;
   return format(sql);
 };

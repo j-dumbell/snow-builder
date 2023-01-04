@@ -3,16 +3,26 @@ import { HavingBuilder } from './having-builder';
 import { LimitBuilder } from './limit-builder';
 import { Connection } from 'snowflake-sdk';
 import { Executable } from './executable';
+import { orderByFns, OrderByFns } from '../sf-functions';
+import { OrderByBuilder } from './order-by-builder';
+import { Ordered } from './from-builder';
 
-export class GroupByBuilder<RType> extends Executable<RType> {
+export class GroupByBuilder<Fields, RType> extends Executable<RType> {
   constructor(sf: Connection, queryConfig: QueryConfig) {
     super(sf, queryConfig);
   }
 
-  having(raw: string): HavingBuilder<RType> {
-    return new HavingBuilder<RType>(this.sf, {
+  having(raw: string): HavingBuilder<Fields, RType> {
+    return new HavingBuilder<Fields, RType>(this.sf, {
       ...this.queryConfig,
       having: raw,
+    });
+  }
+
+  orderBy(fn: (f: OrderByFns<Fields>) => Ordered[]): OrderByBuilder<RType> {
+    return new OrderByBuilder<RType>(this.sf, {
+      ...this.queryConfig,
+      orderBy: fn(orderByFns<Fields>()),
     });
   }
 

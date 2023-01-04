@@ -6,6 +6,7 @@ import { getEnvOrThrow } from './utils';
 import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
 import { execute } from './sf-promise';
+import { s } from './sf-functions';
 
 dotenv.config();
 jest.setTimeout(20 * 1000);
