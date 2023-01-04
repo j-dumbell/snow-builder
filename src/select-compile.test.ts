@@ -3,7 +3,6 @@ import { selectCompile } from './select-compile';
 import { format } from 'sql-formatter';
 import { Aliased, Expr, Ordered } from './builders/from-builder';
 
-
 type TestConfig = {
   name: string;
   queryConfig: QueryConfig;
@@ -12,7 +11,7 @@ type TestConfig = {
 
 const testConfigs: TestConfig[] = [
   {
-    name: 'all configs', 
+    name: 'all configs',
     queryConfig: {
       from: 'users',
       fromAlias: 'u',
@@ -29,9 +28,12 @@ const testConfigs: TestConfig[] = [
       where: 'isVerified is true',
       groupBy: ['u.userId'],
       having: 'COUNT() > 1',
-      orderBy: [new Ordered('u.userId', 'desc'), new Ordered('u.isVerified', 'asc')],
+      orderBy: [
+        new Ordered('u.userId', 'desc'),
+        new Ordered('u.isVerified', 'asc'),
+      ],
       limit: 10,
-    }, 
+    },
     expected: `
       SELECT u.userId, u.isVerified, COUNT()
       FROM users u
@@ -46,12 +48,12 @@ const testConfigs: TestConfig[] = [
   },
 
   {
-    name: 'select only', 
+    name: 'select only',
     queryConfig: {
       from: 'users',
       fromAlias: 'us',
-      select: ['u.userId', 'u.some_field']
-    }, 
+      select: ['u.userId', 'u.some_field'],
+    },
     expected: `
       SELECT u.userId, u.some_field
       FROM users us;
@@ -64,7 +66,7 @@ const testConfigs: TestConfig[] = [
       from: 'm_ints',
       fromAlias: 'm_',
       select: ['m_.id', new Aliased<number, 'totes'>('SUM(m_.total)', 'totes')],
-      groupBy: ['m._id']
+      groupBy: ['m._id'],
     },
     expected: `
       SELECT m_.id, SUM(m_.total) as totes
@@ -75,7 +77,7 @@ const testConfigs: TestConfig[] = [
 ];
 
 describe('selectCompile', () => {
-  test.each(testConfigs)('$name', ({queryConfig, expected}) => {
+  test.each(testConfigs)('$name', ({ queryConfig, expected }) => {
     const actual = selectCompile(queryConfig);
     expect(actual).toEqual(format(expected));
   });

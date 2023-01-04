@@ -1,10 +1,10 @@
 name: 'test'
 on:
   push:
-    branch:
-      - 'main'
+    branches:
+      - master
   pull_request:
-    branch:
+    branches:
       - '**'
 
 env:
