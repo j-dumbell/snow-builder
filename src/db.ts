@@ -28,28 +28,21 @@ export class Db<DB extends Record<string, Table>> {
       groupBy: [],
       joins: [],
       select: [],
+      orderBy: [],
     });
   }
 
   async insertInto<TName extends keyof DB & string>(
     table: TName,
-    asSelect: Executable<UpperCaseObjKey<DB[TName]>>,
-  ): Promise<void>;
-  async insertInto<TName extends keyof DB & string>(
-    table: TName,
-    records: DB[TName][],
-  ): Promise<void>;
-  async insertInto<TName extends keyof DB & string>(
-    table: TName,
-    arg2: DB[TName][] | Executable<UpperCaseObjKey<DB[TName]>>,
+    recordsOrSelect: DB[TName][] | Executable<UpperCaseObjKey<DB[TName]>>,
   ): Promise<void> {
-    if (Array.isArray(arg2) && arg2.length === 0) {
+    if (Array.isArray(recordsOrSelect) && recordsOrSelect.length === 0) {
       return;
     }
 
-    const sql = Array.isArray(arg2)
-      ? insertRecordsSql(table, arg2)
-      : insertSelectSql(table, arg2);
+    const sql = Array.isArray(recordsOrSelect)
+      ? insertRecordsSql(table, recordsOrSelect)
+      : insertSelectSql(table, recordsOrSelect);
 
     await execute(this.sf, sql);
   }

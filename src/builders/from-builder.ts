@@ -94,15 +94,11 @@ export class FromBuilder<DB, Fields> {
   }
 
   select<Selected extends Selectable<Fields>[]>(
-    fields: Selected,
-  ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>>;
-  select<Selected extends Selectable<Fields>[]>(
-    fn: (f: SelectFns<Fields>) => Selected,
-  ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>>;
-  select<Selected extends Selectable<Fields>[]>(
-    arg: ((f: SelectFns<Fields>) => Selected) | Selected,
+    selectable: ((f: SelectFns<Fields>) => Selected) | Selected,
   ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>> {
-    const select = Array.isArray(arg) ? arg : arg(selectFns<Fields>());
+    const select = Array.isArray(selectable)
+      ? selectable
+      : selectable(selectFns<Fields>());
     return new SelectBuilder<Fields, SelectableToObject<Fields, Selected>>(
       this.sf,
       {
@@ -113,21 +109,33 @@ export class FromBuilder<DB, Fields> {
   }
 }
 
-export class Expr<T> {
-  _type?: T;
+export class Expr<RType> {
+  _type?: RType;
   constructor(public sql: string) {}
 
   as<AName extends ValidFirstCharAlias>(
     alias: IsValidAlias<AName, AName, never>,
-  ): Aliased<T, AName> {
-    return new Aliased<T, AName>(this.sql, alias);
+  ): Aliased<RType, AName> {
+    return new Aliased<RType, AName>(this.sql, alias);
+  }
+
+  asc(): Ordered {
+    return new Ordered(this.sql, 'asc');
+  }
+
+  desc(): Ordered {
+    return new Ordered(this.sql, 'desc');
   }
 }
 
-export class Aliased<T, AName extends ValidFirstCharAlias> {
-  _type?: T;
+export class Aliased<RType, AName extends ValidFirstCharAlias> {
+  _type?: RType;
   constructor(
     public sql: string,
     public alias: IsValidAlias<AName, AName, never>,
   ) {}
+}
+
+export class Ordered {
+  constructor(public sql: string, public order: 'asc' | 'desc') {}
 }

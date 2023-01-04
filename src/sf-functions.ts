@@ -58,14 +58,14 @@ export type Condition = {
   expr2: unknown;
 };
 
-export const selectFns = <T>() => ({
-  s: <Field extends keyof T & string>(field: Field) =>
-    new Expr<T[Field]>(field),
-  length: length as typeof length<T>,
-  sum: sum as typeof sum<T>,
-  count: count as typeof count<T>,
-  min: min as typeof min<T>,
-  toDate: toDate as typeof toDate<T>,
+export const selectFns = <Fields>() => ({
+  s: <Field extends keyof Fields & string>(field: Field) =>
+    new Expr<Fields[Field]>(field),
+  length: length as typeof length<Fields>,
+  sum: sum as typeof sum<Fields>,
+  count: count as typeof count<Fields>,
+  min: min as typeof min<Fields>,
+  toDate: toDate as typeof toDate<Fields>,
 });
 
 export const whereFns = <Fields>() => {
@@ -102,5 +102,12 @@ export const whereFns = <Fields>() => {
   };
 };
 
-export type SelectFns<T> = ReturnType<typeof selectFns<T>>;
-export type WhereFns<T> = ReturnType<typeof whereFns<T>>;
+export const orderByFns = <Fields>() => ({
+  len: length as typeof length<Fields>,
+  s: <Field extends keyof Fields & string>(field: Field) =>
+    new Expr<Fields[Field]>(field),
+});
+
+export type SelectFns<Fields> = ReturnType<typeof selectFns<Fields>>;
+export type WhereFns<Fields> = ReturnType<typeof whereFns<Fields>>;
+export type OrderByFns<Fields> = ReturnType<typeof orderByFns<Fields>>;

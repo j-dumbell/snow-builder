@@ -3,9 +3,17 @@ import { WhereBuilder } from './where-builder';
 import { GroupByBuilder } from './group-by-builder';
 import { LimitBuilder } from './limit-builder';
 import { Connection } from 'snowflake-sdk';
-import { Condition, whereFns, WhereFns } from '../sf-functions';
+import {
+  Condition,
+  OrderByFns,
+  orderByFns,
+  whereFns,
+  WhereFns,
+} from '../sf-functions';
 import { KeysMatchingType } from '../util-types';
 import { Executable } from './executable';
+import { OrderByBuilder } from './order-by-builder';
+import { Ordered } from './from-builder';
 
 export type ComparisonOp =
   | '='
@@ -52,6 +60,13 @@ export class SelectBuilder<Fields, RType> extends Executable<RType> {
     return new GroupByBuilder<RType>(this.sf, {
       ...this.queryConfig,
       groupBy: fields,
+    });
+  }
+
+  orderBy(fn: (f: OrderByFns<Fields>) => Ordered[]): OrderByBuilder<RType> {
+    return new OrderByBuilder<RType>(this.sf, {
+      ...this.queryConfig,
+      orderBy: fn(orderByFns<Fields>()),
     });
   }
 
