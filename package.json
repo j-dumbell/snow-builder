@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "snowflake-sdk": "^1.6.17",
-    "sql-formatter": "^12.0.4"
+    "sql-formatter": "^12.0.4",
+    "ts-pattern": "^4.0.6"
   }
 }

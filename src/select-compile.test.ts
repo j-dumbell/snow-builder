@@ -1,7 +1,6 @@
 import { QueryConfig } from './query-config';
-import { selectCompile } from './select-compile';
-import { format } from 'sql-formatter';
-import { Aliased, Expr, Ordered } from './builders/from-builder';
+import { selectCompile, sqlFormat } from './select-compile';
+import { Aliased, Ordered } from './builders/from-builder';
 
 type TestConfig = {
   name: string;
@@ -25,7 +24,7 @@ const testConfigs: TestConfig[] = [
         },
       ],
       select: ['u.userId', 'u.isVerified', 'COUNT()'],
-      where: 'isVerified is true',
+      where: 'isVerified = true',
       groupBy: ['u.userId'],
       having: 'COUNT() > 1',
       orderBy: [
@@ -39,11 +38,11 @@ const testConfigs: TestConfig[] = [
       FROM users u
       INNER JOIN orders o
           ON u.userId = o.userId
-      WHERE isVerified is true
+      WHERE isVerified = true
       GROUP BY u.userId
       HAVING COUNT() > 1
       ORDER BY u.userId desc, u.isVerified asc
-      LIMIT 10;
+      LIMIT 10
     `,
   },
 
@@ -56,7 +55,7 @@ const testConfigs: TestConfig[] = [
     },
     expected: `
       SELECT u.userId, u.some_field
-      FROM users us;
+      FROM users us
     `,
   },
 
@@ -69,9 +68,9 @@ const testConfigs: TestConfig[] = [
       groupBy: ['m._id'],
     },
     expected: `
-      SELECT m_.id, SUM(m_.total) as totes
+      SELECT m_.id, SUM(m_.total) totes
       FROM m_ints m_
-      GROUP BY m._id;
+      GROUP BY m._id
     `,
   },
 ];
@@ -79,6 +78,6 @@ const testConfigs: TestConfig[] = [
 describe('selectCompile', () => {
   test.each(testConfigs)('$name', ({ queryConfig, expected }) => {
     const actual = selectCompile(queryConfig);
-    expect(actual).toEqual(format(expected));
+    expect(actual).toEqual(sqlFormat(expected));
   });
 });
