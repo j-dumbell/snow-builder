@@ -3,15 +3,13 @@ import { FromBuilder } from './builders/from-builder';
 import {
   IsValidAlias,
   PrefixKeys,
+  Table,
   UpperCaseObjKey,
   ValidFirstCharAlias,
 } from './util-types';
 import { insertRecordsSql, insertSelectSql } from './insert-compile';
 import { execute } from './sf-promise';
 import { Executable } from './builders/executable';
-import { SFType } from './util-types';
-
-type Table = Record<string, SFType>;
 
 export class Db<DB extends Record<string, Table>> {
   constructor(public sf: Connection) {}

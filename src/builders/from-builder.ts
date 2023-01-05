@@ -4,25 +4,32 @@ import {
   PrefixKeys,
   Selectable,
   SelectableToObject,
+  Table,
   ValidFirstCharAlias,
 } from '../util-types';
 import { SelectBuilder } from './select-builder';
 import { Connection } from 'snowflake-sdk';
 import { selectFns, SelectFns } from '../sf-functions';
+import { Executable, InferRType } from './executable';
 
-export class FromBuilder<DB, Fields> {
+type RightTable<
+  DB,
+  T extends (keyof DB & string) | Executable<unknown>,
+> = T extends keyof DB & string ? DB[T] : InferRType<T>;
+
+export class FromBuilder<DB, Fields extends Table> {
   constructor(public sf: Connection, public queryConfig: QueryConfig) {}
 
   private join<
-    TName extends keyof DB & string,
+    TName extends (keyof DB & string) | Executable<unknown>,
     TAlias extends ValidFirstCharAlias,
   >(
     joinType: JoinType,
     table: TName,
     alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
-    rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
-  ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
+    rightField: keyof PrefixKeys<RightTable<DB, TName>, TAlias> & string,
+  ): FromBuilder<DB, Fields & PrefixKeys<RightTable<DB, TName>, TAlias>> {
     const joinConfig = {
       joinType,
       table,
@@ -30,27 +37,27 @@ export class FromBuilder<DB, Fields> {
       leftField,
       rightField,
     };
-    const newQueryConfig = {
+    const newQueryConfig: QueryConfig = {
       ...this.queryConfig,
       joins: this.queryConfig.joins
         ? [...this.queryConfig.joins, joinConfig]
         : [joinConfig],
     };
-    return new FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>>(
-      this.sf,
-      newQueryConfig,
-    );
+    return new FromBuilder<
+      DB,
+      Fields & PrefixKeys<RightTable<DB, TName>, TAlias>
+    >(this.sf, newQueryConfig);
   }
 
   innerJoin<
-    TName extends keyof DB & string,
+    TName extends (keyof DB & string) | Executable<unknown>,
     TAlias extends ValidFirstCharAlias,
   >(
     table: TName,
     alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
-    rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
-  ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
+    rightField: keyof PrefixKeys<RightTable<DB, TName>, TAlias> & string,
+  ): FromBuilder<DB, Fields & PrefixKeys<RightTable<DB, TName>, TAlias>> {
     return this.join<TName, TAlias>(
       'inner',
       table,
@@ -60,12 +67,15 @@ export class FromBuilder<DB, Fields> {
     );
   }
 
-  leftJoin<TName extends keyof DB & string, TAlias extends ValidFirstCharAlias>(
+  leftJoin<
+    TName extends (keyof DB & string) | Executable<unknown>,
+    TAlias extends ValidFirstCharAlias,
+  >(
     table: TName,
     alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
-    rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
-  ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
+    rightField: keyof PrefixKeys<RightTable<DB, TName>, TAlias> & string,
+  ): FromBuilder<DB, Fields & PrefixKeys<RightTable<DB, TName>, TAlias>> {
     return this.join<TName, TAlias>(
       'left',
       table,
@@ -76,14 +86,14 @@ export class FromBuilder<DB, Fields> {
   }
 
   rightJoin<
-    TName extends keyof DB & string,
+    TName extends (keyof DB & string) | Executable<unknown>,
     TAlias extends ValidFirstCharAlias,
   >(
     table: TName,
     alias: IsValidAlias<TAlias, TAlias, never>,
     leftField: keyof Fields & string,
-    rightField: keyof PrefixKeys<DB[TName], TAlias> & string,
-  ): FromBuilder<DB, Fields & PrefixKeys<DB[TName], TAlias>> {
+    rightField: keyof PrefixKeys<RightTable<DB, TName>, TAlias> & string,
+  ): FromBuilder<DB, Fields & PrefixKeys<RightTable<DB, TName>, TAlias>> {
     return this.join<TName, TAlias>(
       'right',
       table,

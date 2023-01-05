@@ -6,12 +6,11 @@ import { getEnvOrThrow } from './utils';
 import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
 import { execute } from './sf-promise';
-import { s } from './sf-functions';
 
 dotenv.config();
 jest.setTimeout(20 * 1000);
 
-describe.only('SF IT', () => {
+describe('SF IT', () => {
   let db: Db<AllTables>;
   let conn: Connection;
 
@@ -106,6 +105,24 @@ describe.only('SF IT', () => {
           .findMany();
 
         expect(actual).toEqual([]);
+      });
+
+      it('subquery', async () => {
+        const subquery = db
+          .selectFrom('orders', 'o')
+          .select((f) => ['o.user_id', f.sum('o.total').as('total_spend')])
+          .where('o.user_id', '=', 1)
+          .groupBy('o.user_id');
+
+        const actual = await db
+          .selectFrom('users', 'u')
+          .innerJoin(subquery, 'sq', 'u.user_id', 'sq.USER_ID')
+          .select(['u.user_id', 'u.first_name', 'sq.TOTAL_SPEND'])
+          .findMany();
+
+        expect(actual).toEqual([
+          { USER_ID: 1, FIRST_NAME: 'James', TOTAL_SPEND: 24.66 },
+        ]);
       });
     });
   });

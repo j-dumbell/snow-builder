@@ -1,3 +1,4 @@
+import { Executable } from './builders/executable';
 import { Aliased, Ordered } from './builders/from-builder';
 import { Condition } from './sf-functions';
 import { ValidFirstCharAlias } from './util-types';
@@ -6,7 +7,7 @@ export type JoinType = 'inner' | 'left' | 'right';
 
 export type JoinConfig = {
   joinType: JoinType;
-  table: string;
+  table: string | Executable<unknown>;
   alias: string;
   leftField: string;
   rightField: string;

@@ -1,4 +1,4 @@
-import { KeysMatchingType, OnlyNumber, OnlyString } from './util-types';
+import { OnlyNumber, OnlyString, SFType, Table } from './util-types';
 import { Expr } from './builders/from-builder';
 import { ComparisonOp } from './builders/select-builder';
 
@@ -55,7 +55,7 @@ export const s = <FType = unknown>(sql: string): Expr<FType> => new Expr(sql);
 export type Condition = {
   expr1: string | Expr<unknown>;
   op: ComparisonOp;
-  expr2: unknown;
+  expr2: SFType | string[] | number[] | Date[] | boolean[] | Expr<unknown>;
 };
 
 export const selectFns = <Fields>() => ({
@@ -68,16 +68,13 @@ export const selectFns = <Fields>() => ({
   toDate: toDate as typeof toDate<Fields>,
 });
 
-export const whereFns = <Fields>() => {
+export const whereFns = <Fields extends Table>() => {
   function c<FName extends keyof Fields & string, Op extends ComparisonOp>(
     expr1: FName,
     op: Op,
     expr2: Op extends 'in' | 'not in'
       ? Fields[FName][]
-      :
-          | KeysMatchingType<Fields, Fields[FName]>
-          | Expr<Fields[FName]>
-          | Fields[FName],
+      : Expr<Fields[FName]> | Fields[FName],
   ): Condition;
   function c<T, Op extends ComparisonOp>(
     expr1: Expr<T>,
@@ -92,7 +89,13 @@ export const whereFns = <Fields>() => {
     return {
       expr1,
       op,
-      expr2,
+      expr2: expr2 as
+        | SFType
+        | Expr<unknown>
+        | string[]
+        | number[]
+        | boolean[]
+        | Date[],
     };
   }
 
@@ -109,5 +112,7 @@ export const orderByFns = <Fields>() => ({
 });
 
 export type SelectFns<Fields> = ReturnType<typeof selectFns<Fields>>;
-export type WhereFns<Fields> = ReturnType<typeof whereFns<Fields>>;
+export type WhereFns<Fields extends Table> = ReturnType<
+  typeof whereFns<Fields>
+>;
 export type OrderByFns<Fields> = ReturnType<typeof orderByFns<Fields>>;

@@ -10,7 +10,7 @@ import {
   whereFns,
   WhereFns,
 } from '../sf-functions';
-import { KeysMatchingType } from '../util-types';
+import { SFType, Table } from '../util-types';
 import { Executable } from './executable';
 import { OrderByBuilder } from './order-by-builder';
 import { Ordered } from './from-builder';
@@ -25,7 +25,10 @@ export type ComparisonOp =
   | 'in'
   | 'not in';
 
-export class SelectBuilder<Fields, RType> extends Executable<RType> {
+export class SelectBuilder<
+  Fields extends Table,
+  RType,
+> extends Executable<RType> {
   constructor(sf: Connection, queryConfig: QueryConfig) {
     super(sf, queryConfig);
   }
@@ -34,9 +37,7 @@ export class SelectBuilder<Fields, RType> extends Executable<RType> {
   where<FName extends keyof Fields & string, Op extends ComparisonOp>(
     field: FName,
     op: Op,
-    value: Op extends 'in' | 'not in'
-      ? Fields[FName][]
-      : Fields[FName] | KeysMatchingType<Fields, Fields[FName]>,
+    value: Op extends 'in' | 'not in' ? Fields[FName][] : Fields[FName],
   ): WhereBuilder<Fields, RType>;
   where(fn: (f: WhereFns<Fields>) => Condition): WhereBuilder<Fields, RType>;
   where(
@@ -49,10 +50,15 @@ export class SelectBuilder<Fields, RType> extends Executable<RType> {
     if (typeof arg1 === 'function') {
       where = arg1(whereFunctions);
     } else if (arg2) {
-      where = { expr1: arg1, op: arg2, expr2: arg3 };
+      where = {
+        expr1: arg1,
+        op: arg2,
+        expr2: arg3 as SFType | string[] | number[] | Date[] | boolean[],
+      };
     } else {
       where = arg1;
     }
+
     return new WhereBuilder(this.sf, { ...this.queryConfig, where });
   }
 
