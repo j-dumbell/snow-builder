@@ -89,7 +89,13 @@ export const whereFns = <Fields extends Table>() => {
     return {
       expr1,
       op,
-      expr2: expr2 as SFType | Expr<unknown> | string[] | number[] | boolean[] | Date[],
+      expr2: expr2 as
+        | SFType
+        | Expr<unknown>
+        | string[]
+        | number[]
+        | boolean[]
+        | Date[],
     };
   }
 
@@ -106,5 +112,7 @@ export const orderByFns = <Fields>() => ({
 });
 
 export type SelectFns<Fields> = ReturnType<typeof selectFns<Fields>>;
-export type WhereFns<Fields extends Table> = ReturnType<typeof whereFns<Fields>>;
+export type WhereFns<Fields extends Table> = ReturnType<
+  typeof whereFns<Fields>
+>;
 export type OrderByFns<Fields> = ReturnType<typeof orderByFns<Fields>>;

@@ -112,7 +112,7 @@ describe('SF IT', () => {
           .selectFrom('orders', 'o')
           .select((f) => ['o.user_id', f.sum('o.total').as('total_spend')])
           .where('o.user_id', '=', 1)
-          .groupBy('o.user_id')
+          .groupBy('o.user_id');
 
         const actual = await db
           .selectFrom('users', 'u')
@@ -120,7 +120,9 @@ describe('SF IT', () => {
           .select(['u.user_id', 'u.first_name', 'sq.TOTAL_SPEND'])
           .findMany();
 
-        expect(actual).toEqual([{USER_ID: 1, FIRST_NAME: 'James', TOTAL_SPEND: 24.66}]);
+        expect(actual).toEqual([
+          { USER_ID: 1, FIRST_NAME: 'James', TOTAL_SPEND: 24.66 },
+        ]);
       });
     });
   });

@@ -4,7 +4,7 @@ import { match, P } from 'ts-pattern';
 import { SFType, ValidFirstCharAlias } from './util-types';
 import { Aliased, Expr } from './builders/from-builder';
 
-const sfTypeToSql = (sfType: SFType): string => 
+const sfTypeToSql = (sfType: SFType): string =>
   match(sfType)
     .with(P.string, (x) => `'${x}'`)
     .with(P.number, (x) => String(x))
@@ -12,16 +12,27 @@ const sfTypeToSql = (sfType: SFType): string =>
     .with(P.instanceOf(Date), (x) => `'${x.toISOString()}'`)
     .exhaustive();
 
-
-const toSql = (s: SFType | string[] | number[] | boolean[] | Date[] | Expr<unknown> | Aliased<unknown, ValidFirstCharAlias>): string =>
+const toSql = (
+  s:
+    | SFType
+    | string[]
+    | number[]
+    | boolean[]
+    | Date[]
+    | Expr<unknown>
+    | Aliased<unknown, ValidFirstCharAlias>,
+): string =>
   match(s)
-    .with(P.string, P.number, P.boolean, P.instanceOf(Date), (x) => sfTypeToSql(x))
+    .with(P.string, P.number, P.boolean, P.instanceOf(Date), (x) =>
+      sfTypeToSql(x),
+    )
     .with(P.array(P._), (x) => `(${x.map(sfTypeToSql).join(',')})`)
     .with(P.instanceOf(Expr), (x) => x.sql)
     .with(P.instanceOf(Aliased), (x) => `${x.sql} ${x.alias}`)
     .exhaustive();
 
-export const sqlFormat = (s: string): string => format(s, {keywordCase: 'upper'});
+export const sqlFormat = (s: string): string =>
+  format(s, { keywordCase: 'upper' });
 
 const stripAlias = (field: string): string =>
   field.includes('.') ? field.split('.')[1] : field;
@@ -34,9 +45,10 @@ export const orderFieldNames = (queryConfig: QueryConfig): string[] =>
     .sort();
 
 const joinConfigToSql = (jc: JoinConfig): string => {
-  const tableSql = typeof jc.table === 'string' ? jc.table : `(${jc.table.compile()})`;
+  const tableSql =
+    typeof jc.table === 'string' ? jc.table : `(${jc.table.compile()})`;
   return `${jc.joinType} JOIN ${tableSql} ${jc.alias} ON ${jc.leftField} = ${jc.rightField}`;
-}
+};
 
 export const selectCompile = (queryConfig: QueryConfig): string => {
   const {
@@ -52,23 +64,23 @@ export const selectCompile = (queryConfig: QueryConfig): string => {
   } = queryConfig;
 
   const selectSql = select
-    .map((col) =>
-      typeof col === 'string' ? col : `${col.sql} ${col.alias}`,
-    )
+    .map((col) => (typeof col === 'string' ? col : `${col.sql} ${col.alias}`))
     .join(', ');
 
-  const joinSql = joins
-    ? joins
-        .map(joinConfigToSql)
-        .join('\n')
-    : '';
+  const joinSql = joins ? joins.map(joinConfigToSql).join('\n') : '';
 
   const whereSql: string = match(where)
     .with(P.nullish, () => '')
     .with(P.string, (x) => `WHERE ${x}`)
-    .with({expr1: P.string}, (x) => `WHERE ${x.expr1} ${x.op} ${toSql(x.expr2)}`)
-    .with({expr1: P.instanceOf(Expr)}, (x) => `WHERE ${toSql(x.expr1)} ${x.op} ${toSql(x.expr2)}`)
-    .exhaustive()
+    .with(
+      { expr1: P.string },
+      (x) => `WHERE ${x.expr1} ${x.op} ${toSql(x.expr2)}`,
+    )
+    .with(
+      { expr1: P.instanceOf(Expr) },
+      (x) => `WHERE ${toSql(x.expr1)} ${x.op} ${toSql(x.expr2)}`,
+    )
+    .exhaustive();
 
   const groupBySql = groupBy?.length ? `GROUP BY ${groupBy.join(',')}` : '';
   const havingSql = having ? `HAVING ${having}` : '';
