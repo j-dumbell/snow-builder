@@ -26,7 +26,7 @@ export type PrefixKeys<T, S extends string> = {
 
 export type Selectable<T> =
   | StringKeys<T>
-  | Aliased<unknown, ValidFirstCharAlias>;
+  | Aliased<SFType, ValidFirstCharAlias>;
 
 export type InferColumnType<
   Fields,
@@ -46,12 +46,12 @@ export type InferColumnName<
   T extends Selectable<Fields>,
 > = T extends StringKeys<Fields>
   ? Uppercase<StripPrefix<T>>
-  : T extends Aliased<unknown, infer R>
+  : T extends Aliased<SFType, infer R>
   ? Uppercase<R>
   : never;
 
 export type SelectableToObject<
-  Fields,
+  Fields extends Table,
   Selected extends Selectable<Fields>[],
 > = {
   [K in Selected[number] as InferColumnName<Fields, K>]: InferColumnType<

@@ -4,6 +4,7 @@ import {
   PrefixKeys,
   Selectable,
   SelectableToObject,
+  SFType,
   Table,
   ValidFirstCharAlias,
 } from '../util-types';
@@ -12,16 +13,16 @@ import { Connection } from 'snowflake-sdk';
 import { selectFns, SelectFns } from '../sf-functions';
 import { Executable, InferRType } from './executable';
 
-type RightTable<
+export type RightTable<
   DB,
-  T extends (keyof DB & string) | Executable<unknown>,
+  T extends (keyof DB & string) | Executable<Table>,
 > = T extends keyof DB & string ? DB[T] : InferRType<T>;
 
 export class FromBuilder<DB, Fields extends Table> {
   constructor(public sf: Connection, public queryConfig: QueryConfig) {}
 
   private join<
-    TName extends (keyof DB & string) | Executable<unknown>,
+    TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
   >(
     joinType: JoinType,
@@ -50,7 +51,7 @@ export class FromBuilder<DB, Fields extends Table> {
   }
 
   innerJoin<
-    TName extends (keyof DB & string) | Executable<unknown>,
+    TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
   >(
     table: TName,
@@ -68,7 +69,7 @@ export class FromBuilder<DB, Fields extends Table> {
   }
 
   leftJoin<
-    TName extends (keyof DB & string) | Executable<unknown>,
+    TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
   >(
     table: TName,
@@ -86,7 +87,7 @@ export class FromBuilder<DB, Fields extends Table> {
   }
 
   rightJoin<
-    TName extends (keyof DB & string) | Executable<unknown>,
+    TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
   >(
     table: TName,
@@ -119,7 +120,7 @@ export class FromBuilder<DB, Fields extends Table> {
   }
 }
 
-export class Expr<RType> {
+export class Expr<RType extends SFType> {
   _type?: RType;
   constructor(public sql: string) {}
 
@@ -138,7 +139,7 @@ export class Expr<RType> {
   }
 }
 
-export class Aliased<RType, AName extends ValidFirstCharAlias> {
+export class Aliased<RType extends SFType, AName extends ValidFirstCharAlias> {
   _type?: RType;
   constructor(
     public sql: string,

@@ -19,8 +19,8 @@ const toSql = (
     | number[]
     | boolean[]
     | Date[]
-    | Expr<unknown>
-    | Aliased<unknown, ValidFirstCharAlias>,
+    | Expr<SFType>
+    | Aliased<SFType, ValidFirstCharAlias>,
 ): string =>
   match(s)
     .with(P.string, P.number, P.boolean, P.instanceOf(Date), (x) =>
@@ -67,6 +67,7 @@ export const selectCompile = (queryConfig: QueryConfig): string => {
     .map((col) => (typeof col === 'string' ? col : `${col.sql} ${col.alias}`))
     .join(', ');
 
+  const fromSql = typeof from === 'string' ? from : `(${from.compile()})`;
   const joinSql = joins ? joins.map(joinConfigToSql).join('\n') : '';
 
   const whereSql: string = match(where)
@@ -91,7 +92,7 @@ export const selectCompile = (queryConfig: QueryConfig): string => {
 
   const sql = `
     SELECT ${selectSql}
-    FROM ${from} ${fromAlias}
+    FROM ${fromSql} ${fromAlias}
     ${joinSql}
     ${whereSql}
     ${groupBySql}

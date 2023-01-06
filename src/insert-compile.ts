@@ -1,5 +1,5 @@
 import { orderObjectByKeys } from './utils';
-import { SFType } from './util-types';
+import { SFType, Table } from './util-types';
 import { Executable } from './builders/executable';
 import { orderFieldNames } from './select-compile';
 
@@ -33,7 +33,7 @@ export const insertRecordsSql = (
 
 export const insertSelectSql = (
   table: string,
-  executable: Executable<unknown>,
+  executable: Executable<Table>,
 ): string => {
   const fieldNames = orderFieldNames(executable.queryConfig).join(',');
   return `INSERT INTO ${table} (${fieldNames}) ${executable.compile()}`;

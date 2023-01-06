@@ -27,7 +27,7 @@ export type ComparisonOp =
 
 export class SelectBuilder<
   Fields extends Table,
-  RType,
+  RType extends Table,
 > extends Executable<RType> {
   constructor(sf: Connection, queryConfig: QueryConfig) {
     super(sf, queryConfig);

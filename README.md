@@ -12,6 +12,6 @@
     </a>
 </p>
 
-
 ## About
+
 Type-safe NodeJS query builder library for [Snowflake](https://www.snowflake.com/en/) with smart return type inference, written in Typescript.

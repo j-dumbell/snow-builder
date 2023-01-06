@@ -50,15 +50,16 @@ const toDate = <T>(field: OnlyString<T>): Expr<Date> =>
 const length = <T>(field: OnlyString<T>): Expr<number> =>
   new Expr<number>(`LENGTH(${field})`);
 
-export const s = <FType = unknown>(sql: string): Expr<FType> => new Expr(sql);
+export const s = <FType extends SFType>(sql: string): Expr<FType> =>
+  new Expr(sql);
 
 export type Condition = {
-  expr1: string | Expr<unknown>;
+  expr1: string | Expr<SFType>;
   op: ComparisonOp;
-  expr2: SFType | string[] | number[] | Date[] | boolean[] | Expr<unknown>;
+  expr2: SFType | string[] | number[] | Date[] | boolean[] | Expr<SFType>;
 };
 
-export const selectFns = <Fields>() => ({
+export const selectFns = <Fields extends Table>() => ({
   s: <Field extends keyof Fields & string>(field: Field) =>
     new Expr<Fields[Field]>(field),
   length: length as typeof length<Fields>,
@@ -76,13 +77,13 @@ export const whereFns = <Fields extends Table>() => {
       ? Fields[FName][]
       : Expr<Fields[FName]> | Fields[FName],
   ): Condition;
-  function c<T, Op extends ComparisonOp>(
+  function c<T extends SFType, Op extends ComparisonOp>(
     expr1: Expr<T>,
     op: Op,
     expr2: Op extends 'in' ? T[] : Expr<T>,
   ): Condition;
   function c(
-    expr1: string | Expr<unknown>,
+    expr1: string | Expr<SFType>,
     op: ComparisonOp,
     expr2: unknown,
   ): Condition {
@@ -91,7 +92,7 @@ export const whereFns = <Fields extends Table>() => {
       op,
       expr2: expr2 as
         | SFType
-        | Expr<unknown>
+        | Expr<SFType>
         | string[]
         | number[]
         | boolean[]
@@ -105,14 +106,18 @@ export const whereFns = <Fields extends Table>() => {
   };
 };
 
-export const orderByFns = <Fields>() => ({
+export const orderByFns = <Fields extends Table>() => ({
   len: length as typeof length<Fields>,
   s: <Field extends keyof Fields & string>(field: Field) =>
     new Expr<Fields[Field]>(field),
 });
 
-export type SelectFns<Fields> = ReturnType<typeof selectFns<Fields>>;
+export type SelectFns<Fields extends Table> = ReturnType<
+  typeof selectFns<Fields>
+>;
 export type WhereFns<Fields extends Table> = ReturnType<
   typeof whereFns<Fields>
 >;
-export type OrderByFns<Fields> = ReturnType<typeof orderByFns<Fields>>;
+export type OrderByFns<Fields extends Table> = ReturnType<
+  typeof orderByFns<Fields>
+>;
