@@ -141,6 +141,33 @@ describe('SF IT', () => {
         expect(actual).toEqual([{ BLAH: 24.66 }]);
       });
     });
+
+    describe('streamRows', () => {
+      it('should stream all rows', (done) => {
+        const stream = db
+          .selectFrom('order_items', 'oi')
+          .select(['oi.sku', 'oi.line_total'])
+          .orderBy((f) => [f.s('oi.sku').asc()])
+          .streamRows();
+
+        const actual: any[] = [];
+        const expected = [
+          { LINE_TOTAL: 2, SKU: 'batteries' },
+          { LINE_TOTAL: 19.5, SKU: 'microwave' },
+          { LINE_TOTAL: 3.16, SKU: 'paper' },
+        ];
+
+        stream.on('data', (chunk) => actual.push(chunk));
+        stream.on('end', () => {
+          try {
+            expect(actual).toEqual(expected);
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });
+      });
+    });
   });
 
   describe('insertInto', () => {
