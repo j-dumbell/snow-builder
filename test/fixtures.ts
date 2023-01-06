@@ -3,7 +3,7 @@ export type Users = {
   email: string;
   is_verified: boolean;
   first_name: string;
-  last_name: string;
+  last_name: string | null;
 };
 
 export type Orders = {
@@ -22,7 +22,7 @@ export type OrderItems = {
 
 export type Currency = {
   full_name: string;
-  max_denom: number;
+  max_denom: number | null;
   is_active: boolean;
   created_date: Date;
   created_ts: Date;

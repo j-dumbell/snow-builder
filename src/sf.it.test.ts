@@ -120,9 +120,10 @@ describe('SF IT', () => {
           .select(['u.user_id', 'u.first_name', 'sq.TOTAL_SPEND'])
           .findMany();
 
-        expect(actual).toEqual([
+        const expected: typeof actual = [
           { USER_ID: 1, FIRST_NAME: 'James', TOTAL_SPEND: 24.66 },
-        ]);
+        ];
+        expect(actual).toEqual(expected);
       });
 
       it('subquery from select', async () => {
@@ -160,7 +161,7 @@ describe('SF IT', () => {
           full_name: 'Great British Pound',
           created_date: new Date('2021-11-30'),
           created_ts: new Date(),
-          max_denom: 50,
+          max_denom: null,
           is_active: false,
         };
         const toInsert: Currency[] = [usd, gbp];

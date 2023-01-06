@@ -1,6 +1,6 @@
 import { Aliased } from './builders/from-builder';
 
-export type SFType = string | number | boolean | Date;
+export type SFType = string | number | boolean | Date | null;
 
 export type Table = Record<string, SFType>;
 
@@ -13,10 +13,10 @@ export type UpperCaseObjKey<T> = {
   [K in keyof T as K extends string ? Uppercase<K> : never]: T[K];
 };
 
-export type OnlyString<T> = KeysMatchingType<T, string>;
-export type OnlyNumber<T> = KeysMatchingType<T, number>;
-export type OnlyBoolean<T> = KeysMatchingType<T, boolean>;
-export type OnlyDate<T> = KeysMatchingType<T, Date>;
+export type OnlyString<T> = KeysMatchingType<T, string | null>;
+export type OnlyNumber<T> = KeysMatchingType<T, number | null>;
+export type OnlyBoolean<T> = KeysMatchingType<T, boolean | null>;
+export type OnlyDate<T> = KeysMatchingType<T, Date | null>;
 
 export type StringKeys<T> = keyof T & string;
 
