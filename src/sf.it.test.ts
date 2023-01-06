@@ -161,7 +161,7 @@ describe('SF IT', () => {
           full_name: 'Great British Pound',
           created_date: new Date('2021-11-30'),
           created_ts: new Date(),
-          max_denom: 50,
+          max_denom: null,
           is_active: false,
         };
         const toInsert: Currency[] = [usd, gbp];
