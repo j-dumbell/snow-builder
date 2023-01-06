@@ -6,8 +6,12 @@ import { Executable } from './executable';
 import { orderByFns, OrderByFns } from '../sf-functions';
 import { OrderByBuilder } from './order-by-builder';
 import { Ordered } from './from-builder';
+import { Table } from '../util-types';
 
-export class GroupByBuilder<Fields, RType> extends Executable<RType> {
+export class GroupByBuilder<
+  Fields extends Table,
+  RType extends Table,
+> extends Executable<RType> {
   constructor(sf: Connection, queryConfig: QueryConfig) {
     super(sf, queryConfig);
   }

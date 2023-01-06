@@ -107,7 +107,7 @@ describe('SF IT', () => {
         expect(actual).toEqual([]);
       });
 
-      it('subquery', async () => {
+      it('subquery in join', async () => {
         const subquery = db
           .selectFrom('orders', 'o')
           .select((f) => ['o.user_id', f.sum('o.total').as('total_spend')])
@@ -123,6 +123,21 @@ describe('SF IT', () => {
         expect(actual).toEqual([
           { USER_ID: 1, FIRST_NAME: 'James', TOTAL_SPEND: 24.66 },
         ]);
+      });
+
+      it('subquery from select', async () => {
+        const subquery = db
+          .selectFrom('orders', 'o')
+          .select((f) => ['o.user_id', f.sum('o.total').as('total_spend')])
+          .where('o.user_id', '=', 1)
+          .groupBy('o.user_id');
+
+        const actual = await db
+          .selectFrom(subquery, 'sq')
+          .select((f) => [f.s('sq.TOTAL_SPEND').as('blah')])
+          .findMany();
+
+        expect(actual).toEqual([{ BLAH: 24.66 }]);
       });
     });
   });

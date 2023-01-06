@@ -1,5 +1,5 @@
 import { Connection } from 'snowflake-sdk';
-import { FromBuilder } from './builders/from-builder';
+import { FromBuilder, RightTable } from './builders/from-builder';
 import {
   IsValidAlias,
   PrefixKeys,
@@ -14,20 +14,23 @@ import { Executable } from './builders/executable';
 export class Db<DB extends Record<string, Table>> {
   constructor(public sf: Connection) {}
   selectFrom<
-    TName extends keyof DB & string,
+    TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
   >(
     table: TName,
     alias: IsValidAlias<TAlias, TAlias, never>,
-  ): FromBuilder<DB, PrefixKeys<DB[TName], TAlias>> {
-    return new FromBuilder<DB, PrefixKeys<DB[TName], TAlias>>(this.sf, {
-      from: table,
-      fromAlias: alias,
-      groupBy: [],
-      joins: [],
-      select: [],
-      orderBy: [],
-    });
+  ): FromBuilder<DB, PrefixKeys<RightTable<DB, TName>, TAlias>> {
+    return new FromBuilder<DB, PrefixKeys<RightTable<DB, TName>, TAlias>>(
+      this.sf,
+      {
+        from: table,
+        fromAlias: alias,
+        groupBy: [],
+        joins: [],
+        select: [],
+        orderBy: [],
+      },
+    );
   }
 
   async insertInto<TName extends keyof DB & string>(

@@ -13,6 +13,7 @@ import {
   StripPrefix,
   ValidFirstCharAlias,
   UpperCaseObjKey,
+  SFType,
 } from './util-types';
 import { Equal, Expect } from '../test/utils';
 import { Aliased } from './builders/from-builder';
@@ -109,7 +110,7 @@ describe('util-types', () => {
         | 'foo'
         | 'bar'
         | 'opt'
-        | Aliased<unknown, ValidFirstCharAlias>;
+        | Aliased<SFType, ValidFirstCharAlias>;
       type Assertion = Expect<Equal<Actual, Expected>>;
     });
   });
@@ -130,7 +131,7 @@ describe('util-types', () => {
 
   describe('InferColumnName', () => {
     it('aliased', () => {
-      type Actual = InferColumnName<TestType3, Aliased<unknown, 'blah'>>;
+      type Actual = InferColumnName<TestType3, Aliased<SFType, 'blah'>>;
       type Expected = 'BLAH';
       type Assertion = Expect<Equal<Actual, Expected>>;
     });

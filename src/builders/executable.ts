@@ -2,8 +2,9 @@ import { Connection } from 'snowflake-sdk';
 import { selectCompile } from '../select-compile';
 import { QueryConfig } from '../query-config';
 import { findMany, findOne } from '../sf-promise';
+import { Table } from '../util-types';
 
-export class Executable<RType> {
+export class Executable<RType extends Table> {
   constructor(public sf: Connection, public queryConfig: QueryConfig) {}
 
   findOne(): Promise<RType | undefined> {
