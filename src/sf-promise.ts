@@ -1,4 +1,5 @@
 import { Connection, SnowflakeError, Statement } from 'snowflake-sdk';
+import { Readable } from 'stream';
 
 export const connect = (conn: Connection): Promise<void> =>
   new Promise((resolve, reject) =>
@@ -33,6 +34,9 @@ export const findOne = async <T = unknown>(
   const result = await execute<T>(conn, sqlText);
   return result && result[0];
 };
+
+export const streamRows = (conn: Connection, sqlText: string): Readable =>
+  conn.execute({ sqlText, streamResult: true }).streamRows();
 
 export const destroy = (conn: Connection): Promise<void> =>
   new Promise((resolve, reject) =>
