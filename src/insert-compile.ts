@@ -1,17 +1,7 @@
 import { orderObjectByKeys } from './utils';
 import { SFType, Table } from './util-types';
 import { Executable } from './builders/executable';
-import { orderFieldNames } from './select-compile';
-
-const sfTypeToSql = (value: SFType): string => {
-  if (typeof value === 'string') {
-    return `'${value}'`;
-  }
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return String(value);
-  }
-  return `'${value.toISOString()}'`;
-};
+import { orderFieldNames, sfTypeToSql } from './select-compile';
 
 export const recordToSql = (record: Record<string, SFType>): string => {
   const ordered = orderObjectByKeys(record, false)

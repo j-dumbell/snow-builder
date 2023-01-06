@@ -21,14 +21,14 @@ import { Aliased } from './builders/from-builder';
 const symbol = Symbol();
 
 type TestType1 = {
-  a: string;
+  a: string | null;
   b: string;
   c: number;
-  d: number;
+  d: number | null;
   e: boolean;
-  f: boolean;
+  f: boolean | null;
   g: Date;
-  h: Date;
+  h: Date | null;
   [symbol]: string;
   0: number;
 };

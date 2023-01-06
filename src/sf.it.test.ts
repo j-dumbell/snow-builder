@@ -120,9 +120,10 @@ describe('SF IT', () => {
           .select(['u.user_id', 'u.first_name', 'sq.TOTAL_SPEND'])
           .findMany();
 
-        expect(actual).toEqual([
+        const expected: typeof actual = [
           { USER_ID: 1, FIRST_NAME: 'James', TOTAL_SPEND: 24.66 },
-        ]);
+        ];
+        expect(actual).toEqual(expected);
       });
 
       it('subquery from select', async () => {

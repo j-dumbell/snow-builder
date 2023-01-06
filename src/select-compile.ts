@@ -4,11 +4,12 @@ import { match, P } from 'ts-pattern';
 import { SFType, ValidFirstCharAlias } from './util-types';
 import { Aliased, Expr } from './builders/from-builder';
 
-const sfTypeToSql = (sfType: SFType): string =>
+export const sfTypeToSql = (sfType: SFType): string =>
   match(sfType)
     .with(P.string, (x) => `'${x}'`)
     .with(P.number, (x) => String(x))
     .with(P.boolean, (x) => String(x))
+    .with(P.nullish, () => 'null')
     .with(P.instanceOf(Date), (x) => `'${x.toISOString()}'`)
     .exhaustive();
 
@@ -23,7 +24,7 @@ const toSql = (
     | Aliased<SFType, ValidFirstCharAlias>,
 ): string =>
   match(s)
-    .with(P.string, P.number, P.boolean, P.instanceOf(Date), (x) =>
+    .with(P.string, P.number, P.boolean, P.instanceOf(Date), P.nullish, (x) =>
       sfTypeToSql(x),
     )
     .with(P.array(P._), (x) => `(${x.map(sfTypeToSql).join(',')})`)

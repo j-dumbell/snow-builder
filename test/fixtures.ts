@@ -3,7 +3,7 @@ export type Users = {
   email: string;
   is_verified: boolean;
   first_name: string;
-  last_name: string;
+  last_name: string | null;
 };
 
 export type Orders = {
