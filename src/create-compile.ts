@@ -2,8 +2,8 @@ import { match } from 'ts-pattern';
 import { sqlFormat } from './select-compile';
 import { SType, TConfig } from './util-types';
 
-const sTypeToDDL = (sType: SType): string =>
-  match(sType)
+const sTypeToDDL = (sType: SType & {nullable: boolean}): string => {
+  const collTypeSql = match(sType)
     .with({ _type: 'varchar' }, (x) => {
       const argsSql = x.length ? `(${x.length})` : '';
       return `${x._type}${argsSql}`;
@@ -16,6 +16,10 @@ const sTypeToDDL = (sType: SType): string =>
       (x) => `${x._type}`,
     )
     .exhaustive();
+    const nullSql = sType.nullable ? '' : ' NOT NULL';
+
+    return `${collTypeSql} ${nullSql}`;
+}
 
 //ToDo - extend to include DB / schema once added to config
 export const createCompile = (
