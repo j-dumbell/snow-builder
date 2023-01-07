@@ -1,36 +1,66 @@
-export type Users = {
-  user_id: number;
-  email: string;
-  is_verified: boolean;
-  first_name: string;
-  last_name: string | null;
-};
+import { DBConfig, TableFromConfig, TConfig } from '../src/util-types';
 
-export type Orders = {
-  order_id: number;
-  user_id: number;
-  order_date: Date;
-  total: number;
-};
+export const users = {
+  user_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
+  email: { _type: 'varchar', nullable: false },
+  is_verified: { _type: 'boolean', nullable: false },
+  first_name: { _type: 'varchar', nullable: false },
+  last_name: { _type: 'varchar', nullable: true },
+} satisfies TConfig;
 
-export type OrderItems = {
-  order_id: number;
-  sku: string;
-  quantity: number;
-  line_total: number;
-};
+export const orders = {
+  order_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
+  user_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
+  order_date: { _type: 'date', nullable: false },
+  total: { _type: 'number', precision: 38, scale: 2, nullable: false },
+} satisfies TConfig;
 
-export type Currency = {
-  full_name: string;
-  max_denom: number | null;
-  is_active: boolean;
-  created_date: Date;
-  created_ts: Date;
-};
+export const order_items = {
+  order_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
+  sku: { _type: 'varchar', nullable: false },
+  quantity: { _type: 'number', precision: 38, scale: 0, nullable: false },
+  line_total: { _type: 'number', precision: 38, scale: 2, nullable: false },
+} satisfies TConfig;
 
-export type AllTables = {
-  users: Users;
-  orders: Orders;
-  order_items: OrderItems;
-  currencies: Currency;
-};
+export const currencies = {
+  full_name: { _type: 'varchar', nullable: false },
+  max_denom: { _type: 'number', precision: 38, scale: 2, nullable: true },
+  is_active: { _type: 'boolean', nullable: false },
+  created_date: { _type: 'date', nullable: false },
+  created_ts: { _type: 'timestamp', nullable: false },
+} satisfies TConfig;
+
+export const dbConfig = {
+  users,
+  orders,
+  order_items,
+  currencies,
+} satisfies DBConfig;
+
+export const usersRecords: TableFromConfig<typeof users>[] = [
+  {
+    user_id: 1,
+    email: 'jrogers@gmail.com',
+    is_verified: true,
+    first_name: 'James',
+    last_name: 'Rogers',
+  },
+  {
+    user_id: 2,
+    email: 'bmurray@gmail.com',
+    is_verified: false,
+    first_name: 'Bill',
+    last_name: 'Murray',
+  },
+];
+
+export const ordersRecords: TableFromConfig<typeof orders>[] = [
+  { order_id: 1, user_id: 1, order_date: new Date('2022-12-10'), total: 19.5 },
+  { order_id: 2, user_id: 1, order_date: new Date('2022-11-30'), total: 5.16 },
+];
+
+export const orderItemsRecords: TableFromConfig<typeof order_items>[] = [
+  { order_id: 1, sku: 'microwave', quantity: 1, line_total: 19.5 },
+  { order_id: 2, sku: 'batteries', quantity: 1, line_total: 2 },
+  { order_id: 2, sku: 'paper', quantity: 1, line_total: 3.16 },
+];

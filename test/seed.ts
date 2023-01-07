@@ -1,6 +1,13 @@
 import { Connection, createConnection } from 'snowflake-sdk';
+import { Db } from '../src/db';
 import { connect, execute } from '../src/sf-promise';
 import { getEnvOrThrow } from '../src/utils';
+import {
+  dbConfig,
+  orderItemsRecords,
+  ordersRecords,
+  usersRecords,
+} from './fixtures';
 
 export const dbName = 'test_db';
 export const schemaName = 'test_schema';
@@ -30,63 +37,6 @@ const grantSchema = `GRANT ALL PRIVILEGES ON SCHEMA ${dbSchemaRef} TO ROLE ${rol
 const grantTables = `GRANT SELECT,INSERT,DELETE ON FUTURE TABLES IN SCHEMA ${dbSchemaRef} TO ROLE ${roleName};`;
 const grantRole = `GRANT ROLE ${roleName} TO USER ${userName}`;
 
-const usersDDL = `
-CREATE OR REPLACE TABLE ${dbSchemaRef}.users (
-  user_id INTEGER NOT NULL,
-  email VARCHAR NOT NULL,
-  is_verified BOOLEAN NOT NULL,
-  first_name VARCHAR,
-  last_name VARCHAR
-);
-`;
-
-const ordersDDL = `
-CREATE OR REPLACE TABLE ${dbSchemaRef}.orders (
-  order_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  order_date DATE NOT NULL,
-  total DECIMAL(38, 2) NOT NULL
-);
-`;
-
-const orderItemsDDL = `
-CREATE OR REPLACE TABLE ${dbSchemaRef}.order_items (
-  order_id INTEGER,
-  sku VARCHAR,
-  quantity INTEGER,
-  line_total DECIMAL(38, 2)
-);
-`;
-
-const currenciesDDL = `
-CREATE OR REPLACE TABLE ${dbSchemaRef}.currencies (
-  full_name VARCHAR,
-  max_denom DECIMAL(38,2),
-  is_active BOOLEAN,
-  created_date DATE,
-  created_ts TIMESTAMP
-);
-`;
-
-const usersInsert = `
-INSERT INTO ${dbSchemaRef}.users VALUES 
-  (1, 'jrogers@gmail.com', true, 'James', 'Rogers'),
-  (2, 'bmurray@gmail.com', false, 'Bill', 'Murray');
-`;
-
-const ordersInsert = `
-INSERT INTO ${dbSchemaRef}.orders VALUES 
-  (1, 1, '2022-12-10', 19.50),
-  (2, 1, '2022-11-30', 5.16);
-`;
-
-const orderItemsInsert = `
-INSERT INTO ${dbSchemaRef}.order_items VALUES 
-  (1, 'microwave', 1, 19.50),
-  (2, 'batteries', 1, 2),
-  (2, 'paper', 1, 3.16);
-`;
-
 export const bootstrap = async (): Promise<void> => {
   const conn = createConnection({
     account: getEnvOrThrow('ACCOUNT'),
@@ -114,15 +64,10 @@ export const bootstrap = async (): Promise<void> => {
 };
 
 export const seed = async (conn: Connection): Promise<void> => {
+  const db = new Db(conn, dbConfig);
   await connect(conn);
-  await Promise.all(
-    [usersDDL, ordersDDL, orderItemsDDL, currenciesDDL].map((sql) =>
-      execute(conn, sql),
-    ),
-  );
-  await Promise.all(
-    [usersInsert, ordersInsert, orderItemsInsert].map((sql) =>
-      execute(conn, sql),
-    ),
-  );
+  await db.createAllTables(true);
+  await db.insertInto('users', usersRecords);
+  await db.insertInto('orders', ordersRecords);
+  await db.insertInto('order_items', orderItemsRecords);
 };
