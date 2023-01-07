@@ -22,7 +22,6 @@ const sTypeToDDL = (sType: SType & { nullable: boolean }): string => {
   return `${collTypeSql} ${nullSql}`;
 };
 
-//ToDo - extend to include DB / schema once added to config
 export const createCompile = (
   { tRef, tSchema }: TConfig,
   replace: boolean,
