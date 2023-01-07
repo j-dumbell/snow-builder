@@ -1,11 +1,13 @@
 import { JoinType, QueryConfig } from '../query-config';
 import {
+  DBConfig,
   IsValidAlias,
   PrefixKeys,
   Selectable,
   SelectableToObject,
   SFType,
   Table,
+  TableFromConfig,
   ValidFirstCharAlias,
 } from '../util-types';
 import { SelectBuilder } from './select-builder';
@@ -14,11 +16,11 @@ import { selectFns, SelectFns } from '../sf-functions';
 import { Executable, InferRType } from './executable';
 
 export type RightTable<
-  DB,
+  DB extends DBConfig,
   T extends (keyof DB & string) | Executable<Table>,
-> = T extends keyof DB & string ? DB[T] : InferRType<T>;
+> = T extends keyof DB & string ? TableFromConfig<DB[T]> : InferRType<T>;
 
-export class FromBuilder<DB, Fields extends Table> {
+export class FromBuilder<DB extends DBConfig, Fields extends Table> {
   constructor(public sf: Connection, public queryConfig: QueryConfig) {}
 
   private join<

@@ -1,5 +1,31 @@
 import { Aliased } from './builders/from-builder';
 
+type Varchar = { _type: 'varchar'; length?: number };
+type SFNumber = { _type: 'number'; precision: number; scale: number };
+type SFBoolean = { _type: 'boolean' };
+type SFDate = { _type: 'date' };
+type Timestamp = { _type: 'timestamp' };
+
+type SType = Varchar | SFNumber | SFBoolean | SFDate | Timestamp;
+
+export type TConfig = Record<string, SType & { nullable: boolean }>;
+
+export type DBConfig = Record<string, TConfig>;
+
+type STypeToTS<T extends SType> = T extends Varchar
+  ? string
+  : T extends SFNumber
+  ? number
+  : T extends SFBoolean
+  ? boolean
+  : Date;
+
+export type TableFromConfig<T extends TConfig> = {
+  [FName in keyof T]: T[FName]['nullable'] extends true
+    ? STypeToTS<T[FName]> | null
+    : STypeToTS<T[FName]>;
+};
+
 export type SFType = string | number | boolean | Date | null;
 
 export type Table = Record<string, SFType>;
