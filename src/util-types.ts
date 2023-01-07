@@ -6,9 +6,16 @@ type SFBoolean = { _type: 'boolean' };
 type SFDate = { _type: 'date' };
 type Timestamp = { _type: 'timestamp' };
 
+export type TRef = { db: string; schema: string; table: string };
+
 export type SType = Varchar | SFNumber | SFBoolean | SFDate | Timestamp;
 
-export type TConfig = Record<string, SType & { nullable: boolean }>;
+export type TSchema = Record<string, SType & { nullable: boolean }>;
+
+export type TConfig = {
+  tRef: TRef;
+  tSchema: TSchema;
+};
 
 export type DBConfig = Record<string, TConfig>;
 
@@ -20,7 +27,7 @@ type STypeToTS<T extends SType> = T extends Varchar
   ? boolean
   : Date;
 
-export type TableFromConfig<T extends TConfig> = {
+export type TableFromConfig<T extends TSchema> = {
   [FName in keyof T]: T[FName]['nullable'] extends true
     ? STypeToTS<T[FName]> | null
     : STypeToTS<T[FName]>;

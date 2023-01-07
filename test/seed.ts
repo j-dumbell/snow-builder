@@ -2,6 +2,7 @@ import { Connection, createConnection } from 'snowflake-sdk';
 import { Db } from '../src/db';
 import { connect, execute } from '../src/sf-promise';
 import { getEnvOrThrow } from '../src/utils';
+import { dbName, roleName, schemaName, userName, whName } from './config';
 import {
   dbConfig,
   orderItemsRecords,
@@ -9,11 +10,6 @@ import {
   usersRecords,
 } from './fixtures';
 
-export const dbName = 'test_db';
-export const schemaName = 'test_schema';
-export const roleName = 'it_role';
-const userName = 'it_user';
-export const whName = 'wh';
 const dbSchemaRef = `${dbName}.${schemaName}`;
 
 const createUser = (username: string, password: string) => `
