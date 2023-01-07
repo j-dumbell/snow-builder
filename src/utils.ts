@@ -15,8 +15,3 @@ export const orderObjectByKeys = <T>(
     : ([aName]: [string, T], [bName]: [string, T]) => (aName < bName ? -1 : 1);
   return Object.entries(o).sort(sortFn);
 };
-
-const o: Record<string, unknown> = {
-  a: 1,
-  1: 2,
-};
