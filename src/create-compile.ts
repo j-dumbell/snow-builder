@@ -1,6 +1,7 @@
 import { match } from 'ts-pattern';
 import { sqlFormat } from './select-compile';
 import { SType, TConfig } from './util-types';
+import { tRefToSql } from './utils';
 
 const sTypeToDDL = (sType: SType & { nullable: boolean }): string => {
   const collTypeSql = match(sType)
@@ -26,11 +27,10 @@ export const createCompile = (
   { tRef, tSchema }: TConfig,
   replace: boolean,
 ): string => {
-  const { db, schema, table } = tRef;
   const replaceSql = replace ? 'OR REPLACE' : '';
   const columnsSql = Object.entries(tSchema)
     .map(([fName, fConfig]) => `${fName} ${sTypeToDDL(fConfig)}`)
     .join(',');
-  const sql = `CREATE ${replaceSql} TABLE ${db}.${schema}.${table} (${columnsSql});`;
+  const sql = `CREATE ${replaceSql} TABLE ${tRefToSql(tRef)} (${columnsSql});`;
   return sqlFormat(sql);
 };
