@@ -14,14 +14,21 @@ import { SelectBuilder } from './select-builder';
 import { Connection } from 'snowflake-sdk';
 import { selectFns, SelectFns } from '../sf-functions';
 import { Executable, InferRType } from './executable';
+import { tRefToSql } from '../utils';
 
 export type RightTable<
   DB extends DBConfig,
   T extends (keyof DB & string) | Executable<Table>,
-> = T extends keyof DB & string ? TableFromConfig<DB[T]> : InferRType<T>;
+> = T extends keyof DB & string
+  ? TableFromConfig<DB[T]['tSchema']>
+  : InferRType<T>;
 
 export class FromBuilder<DB extends DBConfig, Fields extends Table> {
-  constructor(public sf: Connection, public queryConfig: QueryConfig) {}
+  constructor(
+    public sf: Connection,
+    private dbConfig: DB,
+    public queryConfig: QueryConfig,
+  ) {}
 
   private join<
     TName extends (keyof DB & string) | Executable<Table>,
@@ -33,9 +40,12 @@ export class FromBuilder<DB extends DBConfig, Fields extends Table> {
     leftField: keyof Fields & string,
     rightField: keyof PrefixKeys<RightTable<DB, TName>, TAlias> & string,
   ): FromBuilder<DB, Fields & PrefixKeys<RightTable<DB, TName>, TAlias>> {
+    const from =
+      typeof table === 'string' ? tRefToSql(this.dbConfig[table].tRef) : table;
+
     const joinConfig = {
       joinType,
-      table,
+      table: from,
       alias,
       leftField,
       rightField,
@@ -49,7 +59,7 @@ export class FromBuilder<DB extends DBConfig, Fields extends Table> {
     return new FromBuilder<
       DB,
       Fields & PrefixKeys<RightTable<DB, TName>, TAlias>
-    >(this.sf, newQueryConfig);
+    >(this.sf, this.dbConfig, newQueryConfig);
   }
 
   innerJoin<

@@ -23,14 +23,14 @@ const sTypeToDDL = (sType: SType & { nullable: boolean }): string => {
 
 //ToDo - extend to include DB / schema once added to config
 export const createCompile = (
-  tName: string,
-  tConfig: TConfig,
+  { tRef, tSchema }: TConfig,
   replace: boolean,
 ): string => {
+  const { db, schema, table } = tRef;
   const replaceSql = replace ? 'OR REPLACE' : '';
-  const columnsSql = Object.entries(tConfig)
+  const columnsSql = Object.entries(tSchema)
     .map(([fName, fConfig]) => `${fName} ${sTypeToDDL(fConfig)}`)
     .join(',');
-  const sql = `CREATE ${replaceSql} TABLE ${tName} (${columnsSql});`;
+  const sql = `CREATE ${replaceSql} TABLE ${db}.${schema}.${table} (${columnsSql});`;
   return sqlFormat(sql);
 };

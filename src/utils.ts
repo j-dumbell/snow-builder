@@ -1,3 +1,5 @@
+import { TRef } from './util-types';
+
 export const getEnvOrThrow = (envName: string): string => {
   const envValue = process.env[envName];
   if (!envValue) {
@@ -15,3 +17,6 @@ export const orderObjectByKeys = <T>(
     : ([aName]: [string, T], [bName]: [string, T]) => (aName < bName ? -1 : 1);
   return Object.entries(o).sort(sortFn);
 };
+
+export const tRefToSql = ({ db, schema, table }: TRef): string =>
+  `${db}.${schema}.${table}`;

@@ -13,6 +13,7 @@ import { insertRecordsSql, insertSelectSql } from './insert-compile';
 import { execute } from './sf-promise';
 import { Executable } from './builders/executable';
 import { createCompile } from './create-compile';
+import { tRefToSql } from './utils';
 
 export class Db<DB extends DBConfig> {
   constructor(public sf: Connection, private dbConfig: DB) {}
@@ -24,10 +25,14 @@ export class Db<DB extends DBConfig> {
     table: TName,
     alias: IsValidAlias<TAlias, TAlias, never>,
   ): FromBuilder<DB, PrefixKeys<RightTable<DB, TName>, TAlias>> {
+    const from =
+      typeof table === 'string' ? tRefToSql(this.dbConfig[table].tRef) : table;
+
     return new FromBuilder<DB, PrefixKeys<RightTable<DB, TName>, TAlias>>(
       this.sf,
+      this.dbConfig,
       {
-        from: table,
+        from,
         fromAlias: alias,
         groupBy: [],
         joins: [],
@@ -40,8 +45,8 @@ export class Db<DB extends DBConfig> {
   async insertInto<TName extends keyof DB & string>(
     table: TName,
     recordsOrSelect:
-      | TableFromConfig<DB[TName]>[]
-      | Executable<UpperCaseObjKey<TableFromConfig<DB[TName]>>>,
+      | TableFromConfig<DB[TName]['tSchema']>[]
+      | Executable<UpperCaseObjKey<TableFromConfig<DB[TName]['tSchema']>>>,
   ): Promise<void> {
     if (Array.isArray(recordsOrSelect) && recordsOrSelect.length === 0) {
       return;
@@ -60,7 +65,7 @@ export class Db<DB extends DBConfig> {
   ): Promise<void> {
     await Promise.all(
       tableNames.map((tName) => {
-        const sql = createCompile(tName, this.dbConfig[tName], replace);
+        const sql = createCompile(this.dbConfig[tName], replace);
         return execute(this.sf, sql);
       }),
     );
