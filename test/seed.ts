@@ -1,6 +1,8 @@
 import { Connection, createConnection } from 'snowflake-sdk';
+import { Db } from '../src/db';
 import { connect, execute } from '../src/sf-promise';
 import { getEnvOrThrow } from '../src/utils';
+import { dbConfig } from './fixtures';
 
 export const dbName = 'test_db';
 export const schemaName = 'test_schema';
@@ -113,13 +115,24 @@ export const bootstrap = async (): Promise<void> => {
   }
 };
 
+// export const seed = async (conn: Connection): Promise<void> => {
+//   await connect(conn);
+//   await Promise.all(
+//     [usersDDL, ordersDDL, orderItemsDDL, currenciesDDL].map((sql) =>
+//       execute(conn, sql),
+//     ),
+//   );
+//   await Promise.all(
+//     [usersInsert, ordersInsert, orderItemsInsert].map((sql) =>
+//       execute(conn, sql),
+//     ),
+//   );
+// };
+
 export const seed = async (conn: Connection): Promise<void> => {
+  const db = new Db(conn, dbConfig);
   await connect(conn);
-  await Promise.all(
-    [usersDDL, ordersDDL, orderItemsDDL, currenciesDDL].map((sql) =>
-      execute(conn, sql),
-    ),
-  );
+  await db.createAllTables(true);
   await Promise.all(
     [usersInsert, ordersInsert, orderItemsInsert].map((sql) =>
       execute(conn, sql),

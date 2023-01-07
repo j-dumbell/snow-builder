@@ -27,7 +27,7 @@ describe('SF IT', () => {
     });
 
     await seed(conn);
-    db = new Db(conn);
+    db = new Db(conn, dbConfig);
   });
 
   afterAll(async () => {

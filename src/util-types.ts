@@ -6,7 +6,7 @@ type SFBoolean = { _type: 'boolean' };
 type SFDate = { _type: 'date' };
 type Timestamp = { _type: 'timestamp' };
 
-type SType = Varchar | SFNumber | SFBoolean | SFDate | Timestamp;
+export type SType = Varchar | SFNumber | SFBoolean | SFDate | Timestamp;
 
 export type TConfig = Record<string, SType & { nullable: boolean }>;
 
