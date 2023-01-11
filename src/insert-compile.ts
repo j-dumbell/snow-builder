@@ -1,24 +1,23 @@
-import { orderObjectByKeys } from './utils';
-import { SFType, Table } from './util-types';
+import { tRefToSql } from './utils';
+import { SFType, Table, TableFromConfig, TInsert, TRef, TSchema } from './util-types';
 import { Executable } from './builders/executable';
 import { orderFieldNames, sfTypeToSql } from './select-compile';
 
-export const recordToSql = (record: Record<string, SFType>): string => {
-  const ordered = orderObjectByKeys(record, false)
-    .map(([, value]) => sfTypeToSql(value))
-    .join(',');
-  return `(${ordered})`;
-};
-
-export const insertRecordsSql = (
-  table: string,
-  records: Record<string, SFType>[],
+export const insertRecordsSql = <T extends TSchema>(
+  tRef: TRef,
+  tSchema: T,
+  records: TInsert<T>[],
 ): string => {
-  const columns = Object.keys(records[0] as object).sort();
+  const refSql = tRefToSql(tRef);
+  const columns = Object.keys(tSchema).sort();
   const columnSql = `(${columns.join(',')})`;
-  const valuesSql = records.map(recordToSql).join(',');
 
-  return `INSERT INTO ${table} ${columnSql} VALUES ${valuesSql}`;
+  const values = records.map(
+    (r) => `(${columns.map((c) => sfTypeToSql((r as Record<string, SFType>)[c])).join(',')})`,
+  );
+  const valuesSql = values.join(',');
+
+  return `INSERT INTO ${refSql} ${columnSql} VALUES ${valuesSql}`;
 };
 
 export const insertSelectSql = (

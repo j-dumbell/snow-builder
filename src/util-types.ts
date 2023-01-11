@@ -33,7 +33,19 @@ export type TableFromConfig<T extends TSchema> = {
     : STypeToTS<T[FName]>;
 };
 
-export type SFType = string | number | boolean | Date | null;
+export type SetNullableKeysToOptional<T> = {
+  [K in (keyof T & string) as T[K] extends string | number | boolean | Date
+    ? K
+    : never]: T[K];
+} & {
+  [K in (keyof T & string) as T[K] extends string | number | boolean | Date
+    ? never
+    : K]?: T[K];
+};
+
+export type TInsert<T extends TSchema> = SetNullableKeysToOptional<TableFromConfig<T>>;
+
+export type SFType = string | number | boolean | Date | null | undefined;
 
 export type Table = Record<string, SFType>;
 
