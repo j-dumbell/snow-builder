@@ -1,6 +1,7 @@
 import { QueryConfig } from './query-config';
 import { selectCompile, sqlFormat } from './select-compile';
 import { Aliased, Ordered } from './builders/from-builder';
+import { SFType, ValidFirstCharAlias } from './util-types';
 
 type TestConfig = {
   name: string;
@@ -23,7 +24,7 @@ const testConfigs: TestConfig[] = [
           rightField: 'o.userId',
         },
       ],
-      select: ['u.userId', 'u.isVerified', 'COUNT()'],
+      select: ['u.userId', 'u.isVerified', new Aliased<SFType, ValidFirstCharAlias>('count()', 'cnt')],
       where: 'isVerified = true',
       groupBy: ['u.userId'],
       having: 'COUNT() > 1',
@@ -34,7 +35,7 @@ const testConfigs: TestConfig[] = [
       limit: 10,
     },
     expected: `
-      SELECT u.userId, u.isVerified, COUNT()
+      SELECT count() cnt, u.isVerified, u.userId
       FROM users u
       INNER JOIN orders o
           ON u.userId = o.userId
@@ -51,10 +52,10 @@ const testConfigs: TestConfig[] = [
     queryConfig: {
       from: 'users',
       fromAlias: 'us',
-      select: ['u.userId', 'u.some_field'],
+      select: ['us.userId', 'us.some_field'],
     },
     expected: `
-      SELECT u.userId, u.some_field
+      SELECT us.some_field, us.userId
       FROM users us
     `,
   },

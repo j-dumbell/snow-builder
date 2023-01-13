@@ -225,20 +225,20 @@ describe('SF IT', () => {
       });
     });
 
-    // describe('from select', () => {
-    //   it('currencies', async () => {
-    //     const select = db
-    //       .selectFrom('currencies', 'c')
-    //       .select([
-    //         'c.created_date',
-    //         'c.created_ts',
-    //         'c.full_name',
-    //         'c.is_active',
-    //         'c.max_denom',
-    //       ]);
+    describe('from select', () => {
+      it('currencies', async () => {
+        const select = db
+          .selectFrom('currencies', 'c')
+          .select([
+            'c.created_date',
+            'c.created_ts',
+            'c.full_name',
+            'c.is_active',
+            'c.max_denom',
+          ]);
 
-    //     await db.insertInto('currencies', select);
-    //   });
-    // });
+        await db.insertInto('currencies', select);
+      });
+    });
   });
 });

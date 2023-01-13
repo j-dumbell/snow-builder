@@ -1,5 +1,5 @@
 import { tRefToSql } from './utils';
-import { SFType, Table, TableFromConfig, TInsert, TRef, TSchema } from './util-types';
+import { SFType, TInsert, TRef, TSchema, UpperCaseObjKey } from './util-types';
 import { Executable } from './builders/executable';
 import { orderFieldNames, sfTypeToSql } from './select-compile';
 
@@ -20,10 +20,11 @@ export const insertRecordsSql = <T extends TSchema>(
   return `INSERT INTO ${refSql} ${columnSql} VALUES ${valuesSql}`;
 };
 
-export const insertSelectSql = (
-  table: string,
-  executable: Executable<Table>,
+export const insertSelectSql = <T extends TSchema>(
+  tRef: TRef,
+  executable: Executable<UpperCaseObjKey<TInsert<T>>>,
 ): string => {
+  const refSql = tRefToSql(tRef);
   const fieldNames = orderFieldNames(executable.queryConfig).join(',');
-  return `INSERT INTO ${table} (${fieldNames}) ${executable.compile()}`;
+  return `INSERT INTO ${refSql} (${fieldNames}) ${executable.compile()}`;
 };

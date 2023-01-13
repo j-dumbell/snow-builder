@@ -6,9 +6,10 @@ import {
   PrefixKeys,
   Table,
   TInsert,
+  UpperCaseObjKey,
   ValidFirstCharAlias,
 } from './util-types';
-import { insertRecordsSql } from './insert-compile';
+import { insertRecordsSql, insertSelectSql } from './insert-compile';
 import { execute } from './sf-promise';
 import { Executable } from './builders/executable';
 import { createCompile } from './create-compile';
@@ -18,7 +19,7 @@ import { sqlFormat } from './select-compile';
 type Insertable<
   DB extends DBConfig,
   TName extends keyof DB,
-> = TInsert<DB[TName]['tSchema']>[];
+> = TInsert<DB[TName]['tSchema']>[] | Executable<UpperCaseObjKey<TInsert<DB[TName]['tSchema']>>>;
 
 export class Db<DB extends DBConfig> {
   constructor(public sf: Connection, private dbConfig: DB) {}
@@ -50,21 +51,18 @@ export class Db<DB extends DBConfig> {
   async insertInto<TName extends keyof DB & string>(
     table: TName,
     recordsOrSelect: Insertable<DB, TName>,
-    // | Executable<TableFromConfig<DB[TName]['tSchema']>>,
   ): Promise<void> {
     if (Array.isArray(recordsOrSelect) && recordsOrSelect.length === 0) {
       return;
     }
 
-    const sql = insertRecordsSql(
-      this.dbConfig[table].tRef,
-      this.dbConfig[table].tSchema,
-      recordsOrSelect,
-    );
-
-    // const sql = Array.isArray(recordsOrSelect)
-    //   ? insertRecordsSql(table, recordsOrSelect)
-    //   : insertSelectSql(table, recordsOrSelect);
+    const sql = Array.isArray(recordsOrSelect)
+      ? insertRecordsSql(
+        this.dbConfig[table].tRef,
+        this.dbConfig[table].tSchema,
+        recordsOrSelect,
+      )
+      : insertSelectSql(this.dbConfig[table].tRef, recordsOrSelect);
 
     await execute(this.sf, sqlFormat(sql));
   }

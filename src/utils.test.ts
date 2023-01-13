@@ -1,4 +1,4 @@
-import { getEnvOrThrow, orderObjectByKeys } from './utils';
+import { getEnvOrThrow } from './utils';
 
 describe('utils', () => {
   describe('getEnvOrThrow', () => {
@@ -21,28 +21,6 @@ describe('utils', () => {
 
     it('should throw when the env variable does not exist', () => {
       expect(() => getEnvOrThrow('UNKNOWN_ENV_VAR')).toThrow();
-    });
-  });
-
-  describe('orderObjectByKeys', () => {
-    const obj = { a: 1, b: 2 };
-
-    it('should order ascending when specified', () => {
-      const actual = orderObjectByKeys(obj, false);
-      const expected = [
-        ['a', 1],
-        ['b', 2],
-      ];
-      expect(actual).toEqual(expected);
-    });
-
-    it('should order descending when specified', () => {
-      const actual = orderObjectByKeys(obj, true);
-      const expected = [
-        ['b', 2],
-        ['a', 1],
-      ];
-      expect(actual).toEqual(expected);
     });
   });
 });
