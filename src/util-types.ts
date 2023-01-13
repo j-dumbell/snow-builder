@@ -1,16 +1,11 @@
 import { Aliased } from './builders/from-builder';
-
-type Varchar = { _type: 'varchar'; length?: number };
-type SFNumber = { _type: 'number'; precision: number; scale: number };
-type SFBoolean = { _type: 'boolean' };
-type SFDate = { _type: 'date' };
-type Timestamp = { _type: 'timestamp' };
+import { SType, STypeToTS } from './s-types';
 
 export type TRef = { db: string; schema: string; table: string };
 
-export type SType = Varchar | SFNumber | SFBoolean | SFDate | Timestamp;
+type SPrim = string | number | Date | boolean;
 
-export type TSchema = Record<string, SType & { nullable: boolean }>;
+export type TSchema = Record<string, SType<SPrim>>;
 
 export type TConfig = {
   tRef: TRef;
@@ -19,17 +14,9 @@ export type TConfig = {
 
 export type DBConfig = Record<string, TConfig>;
 
-type STypeToTS<T extends SType> = T extends Varchar
-  ? string
-  : T extends SFNumber
-  ? number
-  : T extends SFBoolean
-  ? boolean
-  : Date;
-
 export type TableFromConfig<T extends TSchema> = {
-  [FName in keyof T]: T[FName]['nullable'] extends true
-    ? STypeToTS<T[FName]> | null
+  [FName in keyof T]: T[FName]['isNullable'] extends true
+    ? STypeToTS<T[FName]> | null 
     : STypeToTS<T[FName]>;
 };
 

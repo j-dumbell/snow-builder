@@ -6,7 +6,7 @@ import { getEnvOrThrow } from './utils';
 import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
 import { execute } from './sf-promise';
-import { TInsert } from './util-types';
+import { TableFromConfig, TInsert } from './util-types';
 import { dbName, roleName, schemaName, whName } from '../test/config';
 
 dotenv.config();
@@ -180,6 +180,9 @@ describe('SF IT', () => {
     describe('from records', () => {
       it('should insert records when non-empty', async () => {
         type Currency = TInsert<typeof currencies.tSchema>;
+
+        type X = TableFromConfig<typeof currencies.tSchema>;
+        
 
         const usd: Currency = {
           full_name: 'United States Dollar',
