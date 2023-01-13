@@ -6,7 +6,7 @@ import { getEnvOrThrow } from './utils';
 import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
 import { execute } from './sf-promise';
-import { TableFromConfig } from './util-types';
+import { TInsert } from './util-types';
 import { dbName, roleName, schemaName, whName } from '../test/config';
 
 dotenv.config();
@@ -179,7 +179,7 @@ describe('SF IT', () => {
 
     describe('from records', () => {
       it('should insert records when non-empty', async () => {
-        type Currency = TableFromConfig<typeof currencies.tSchema>;
+        type Currency = TInsert<typeof currencies.tSchema>;
 
         const usd: Currency = {
           full_name: 'United States Dollar',
@@ -192,7 +192,6 @@ describe('SF IT', () => {
           full_name: 'Great British Pound',
           created_date: new Date('2021-11-30'),
           created_ts: new Date(),
-          max_denom: null,
           is_active: false,
         };
         const toInsert: Currency[] = [usd, gbp];
@@ -211,7 +210,7 @@ describe('SF IT', () => {
             FULL_NAME: gbp.full_name,
             CREATED_DATE: gbp.created_date,
             CREATED_TS: gbp.created_ts,
-            MAX_DENOM: gbp.max_denom,
+            MAX_DENOM: null,
             IS_ACTIVE: gbp.is_active,
           },
         ];

@@ -14,9 +14,11 @@ import {
   ValidFirstCharAlias,
   UpperCaseObjKey,
   SFType,
+  SetNullableKeysToOptional,
 } from './util-types';
 import { Equal, Expect } from '../test/utils';
 import { Aliased } from './builders/from-builder';
+import { number } from 'ts-pattern/dist/patterns';
 
 const symbol = Symbol();
 
@@ -221,5 +223,17 @@ describe('util-types', () => {
       };
       type Assertion = Expect<Equal<Expected, Actual>>;
     });
+  });
+
+  describe('SetNullableKeysToOptional', () => {
+    type Actual = SetNullableKeysToOptional<TestType1>;
+    const a: Actual = {
+      b: '',
+      c: 1,
+      e: true,
+      g: new Date(),
+      0: 1,
+      [symbol]: '',
+    };
   });
 });
