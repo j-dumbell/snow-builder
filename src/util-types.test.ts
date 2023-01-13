@@ -235,5 +235,5 @@ describe('util-types', () => {
       0: 1,
       [symbol]: '',
     };
-  })
+  });
 });

@@ -40,13 +40,15 @@ const stripRef = (field: string): string =>
 
 export const orderFieldNames = (queryConfig: QueryConfig): string[] =>
   queryConfig.select
-    .map((field) =>
-      typeof field === 'string' ? stripRef(field) : field.alias,
-    )
+    .map((field) => (typeof field === 'string' ? stripRef(field) : field.alias))
     .sort();
 
-const resolveFieldName = (fieldOrAlias: Aliased<SFType, ValidFirstCharAlias> | string): string => 
-  typeof fieldOrAlias === 'string' ? stripRef(fieldOrAlias) : fieldOrAlias.alias; 
+const resolveFieldName = (
+  fieldOrAlias: Aliased<SFType, ValidFirstCharAlias> | string,
+): string =>
+  typeof fieldOrAlias === 'string'
+    ? stripRef(fieldOrAlias)
+    : fieldOrAlias.alias;
 
 const joinConfigToSql = (jc: JoinConfig): string => {
   const tableSql =
@@ -68,7 +70,7 @@ export const selectCompile = (queryConfig: QueryConfig): string => {
   } = queryConfig;
 
   const selectSql = select
-    .sort((a, b) => resolveFieldName(a) < resolveFieldName(b) ? -1 : 1)
+    .sort((a, b) => (resolveFieldName(a) < resolveFieldName(b) ? -1 : 1))
     .map((col) => (typeof col === 'string' ? col : `${col.sql} ${col.alias}`))
     .join(', ');
 

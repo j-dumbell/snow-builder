@@ -24,7 +24,11 @@ const testConfigs: TestConfig[] = [
           rightField: 'o.userId',
         },
       ],
-      select: ['u.userId', 'u.isVerified', new Aliased<SFType, ValidFirstCharAlias>('count()', 'cnt')],
+      select: [
+        'u.userId',
+        'u.isVerified',
+        new Aliased<SFType, ValidFirstCharAlias>('count()', 'cnt'),
+      ],
       where: 'isVerified = true',
       groupBy: ['u.userId'],
       having: 'COUNT() > 1',

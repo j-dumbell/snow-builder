@@ -16,10 +16,9 @@ import { createCompile } from './create-compile';
 import { tRefToSql } from './utils';
 import { sqlFormat } from './select-compile';
 
-type Insertable<
-  DB extends DBConfig,
-  TName extends keyof DB,
-> = TInsert<DB[TName]['tSchema']>[] | Executable<UpperCaseObjKey<TInsert<DB[TName]['tSchema']>>>;
+type Insertable<DB extends DBConfig, TName extends keyof DB> =
+  | TInsert<DB[TName]['tSchema']>[]
+  | Executable<UpperCaseObjKey<TInsert<DB[TName]['tSchema']>>>;
 
 export class Db<DB extends DBConfig> {
   constructor(public sf: Connection, private dbConfig: DB) {}
@@ -58,10 +57,10 @@ export class Db<DB extends DBConfig> {
 
     const sql = Array.isArray(recordsOrSelect)
       ? insertRecordsSql(
-        this.dbConfig[table].tRef,
-        this.dbConfig[table].tSchema,
-        recordsOrSelect,
-      )
+          this.dbConfig[table].tRef,
+          this.dbConfig[table].tSchema,
+          recordsOrSelect,
+        )
       : insertSelectSql(this.dbConfig[table].tRef, recordsOrSelect);
 
     await execute(this.sf, sqlFormat(sql));

@@ -34,16 +34,18 @@ export type TableFromConfig<T extends TSchema> = {
 };
 
 export type SetNullableKeysToOptional<T> = {
-  [K in (keyof T) as T[K] extends string | number | boolean | Date
+  [K in keyof T as T[K] extends string | number | boolean | Date
     ? K
     : never]: T[K];
 } & {
-  [K in (keyof T) as T[K] extends string | number | boolean | Date
+  [K in keyof T as T[K] extends string | number | boolean | Date
     ? never
     : K]?: T[K];
 };
 
-export type TInsert<T extends TSchema> = SetNullableKeysToOptional<TableFromConfig<T>>;
+export type TInsert<T extends TSchema> = SetNullableKeysToOptional<
+  TableFromConfig<T>
+>;
 
 export type SFType = string | number | boolean | Date | null | undefined;
 

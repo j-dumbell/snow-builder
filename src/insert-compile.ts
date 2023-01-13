@@ -13,7 +13,10 @@ export const insertRecordsSql = <T extends TSchema>(
   const columnSql = `(${columns.join(',')})`;
 
   const values = records.map(
-    (r) => `(${columns.map((c) => sfTypeToSql((r as Record<string, SFType>)[c])).join(',')})`,
+    (r) =>
+      `(${columns
+        .map((c) => sfTypeToSql((r as Record<string, SFType>)[c]))
+        .join(',')})`,
   );
   const valuesSql = values.join(',');
 
