@@ -4,7 +4,7 @@
   "types": "dist/index.d.ts",
   "description": "Type-safe query builder library for Snowflake, with smart return type inference",
   "license": "MIT",
-  "version": "0.0.4",
+  "version": "0.0.8",
   "homepage": "https://github.com/j-dumbell/snow-builder#readme",
   "bugs": "https://github.com/j-dumbell/snow-builder/issues",
   "keywords": [
