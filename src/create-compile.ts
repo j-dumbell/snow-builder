@@ -1,23 +1,24 @@
 import { match } from 'ts-pattern';
 import { sqlFormat } from './select-compile';
-import { SType, TConfig } from './util-types';
+import { FConfig } from './sf-types';
+import { TConfig } from './util-types';
 import { tRefToSql } from './utils';
 
-const sTypeToDDL = (sType: SType & { nullable: boolean }): string => {
-  const collTypeSql = match(sType)
-    .with({ _type: 'varchar' }, (x) => {
+const sTypeToDDL = (fConfig: FConfig): string => {
+  const collTypeSql = match(fConfig)
+    .with({ _tag: 'varchar' }, (x) => {
       const argsSql = x.length ? `(${x.length})` : '';
-      return `${x._type}${argsSql}`;
+      return `VARCHAR${argsSql}`;
     })
-    .with({ _type: 'number' }, (x) => `${x._type}(${x.precision},${x.scale})`)
+    .with({ _tag: 'number' }, (x) => `NUMBER(${x.precision},${x.scale})`)
+    .with({ _tag: 'timestamp' }, (x) => `TIMESTAMP${x.tz ? `_${x.tz}` : ''}`)
     .with(
-      { _type: 'boolean' },
-      { _type: 'date' },
-      { _type: 'timestamp' },
-      (x) => `${x._type}`,
+      { _tag: 'time' },
+      (x) => `TIME${x.precision ? `(${x.precision})` : ''}`,
     )
+    .with({ _tag: 'boolean' }, { _tag: 'date' }, (x) => `${x._tag}`)
     .exhaustive();
-  const nullSql = sType.nullable ? '' : ' NOT NULL';
+  const nullSql = fConfig.nullable ? '' : ' NOT NULL';
 
   return `${collTypeSql} ${nullSql}`;
 };

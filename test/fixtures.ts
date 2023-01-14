@@ -1,45 +1,52 @@
+import {
+  sBoolean,
+  sDate,
+  sNumber,
+  sTimestamp,
+  sVarchar,
+} from '../src/sf-types';
 import { DBConfig, TableFromConfig, TConfig } from '../src/util-types';
 import { dbName, schemaName } from './config';
 
 export const users = {
   tRef: { db: dbName, schema: schemaName, table: 'users' },
   tSchema: {
-    user_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
-    email: { _type: 'varchar', nullable: false },
-    is_verified: { _type: 'boolean', nullable: false },
-    first_name: { _type: 'varchar', nullable: false },
-    last_name: { _type: 'varchar', nullable: true },
+    user_id: sNumber(38, 0).notNull(),
+    email: sVarchar().notNull(),
+    is_verified: sBoolean().notNull(),
+    first_name: sVarchar().notNull(),
+    last_name: sVarchar(),
   },
 } satisfies TConfig;
 
 export const orders = {
   tRef: { db: dbName, schema: schemaName, table: 'orders' },
   tSchema: {
-    order_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
-    user_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
-    order_date: { _type: 'date', nullable: false },
-    total: { _type: 'number', precision: 38, scale: 2, nullable: false },
+    order_id: sNumber(38, 0).notNull(),
+    user_id: sNumber(38, 0).notNull(),
+    order_date: sDate().notNull(),
+    total: sNumber(38, 2).notNull(),
   },
 } satisfies TConfig;
 
 export const order_items = {
   tRef: { db: dbName, schema: schemaName, table: 'order_items' },
   tSchema: {
-    order_id: { _type: 'number', precision: 38, scale: 0, nullable: false },
-    sku: { _type: 'varchar', nullable: false },
-    quantity: { _type: 'number', precision: 38, scale: 0, nullable: false },
-    line_total: { _type: 'number', precision: 38, scale: 2, nullable: false },
+    order_id: sNumber(38, 0).notNull(),
+    sku: sVarchar().notNull(),
+    quantity: sNumber(38, 0).notNull(),
+    line_total: sNumber(38, 2).notNull(),
   },
 } satisfies TConfig;
 
 export const currencies = {
   tRef: { db: dbName, schema: schemaName, table: 'currencies' },
   tSchema: {
-    full_name: { _type: 'varchar', nullable: false },
-    max_denom: { _type: 'number', precision: 38, scale: 2, nullable: true },
-    is_active: { _type: 'boolean', nullable: false },
-    created_date: { _type: 'date', nullable: false },
-    created_ts: { _type: 'timestamp', nullable: false },
+    full_name: sVarchar().notNull(),
+    max_denom: sNumber(38, 2),
+    is_active: sBoolean().notNull(),
+    created_date: sDate().notNull(),
+    created_ts: sTimestamp().notNull(),
   },
 } satisfies TConfig;
 
