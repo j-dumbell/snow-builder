@@ -57,5 +57,6 @@ const result = await db
   .where('u.is_verified', '=', true)
   .groupBy('u.user_id')
   .orderBy('u.first_name')
-  .limit(10);
+  .limit(10)
+  .findMany();
 ```
