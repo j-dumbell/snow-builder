@@ -1,46 +1,47 @@
-import { SBoolean, SDate, SNumber, STimestamp, SVarchar } from '../src/s-types';
+import { sBoolean, sDate, sNumber, sTimestamp, sVarchar } from '../src/s-types';
 import { DBConfig, TableFromConfig, TConfig } from '../src/util-types';
 import { dbName, schemaName } from './config';
 
 export const users = {
   tRef: { db: dbName, schema: schemaName, table: 'users' },
   tSchema: {
-    user_id: new SNumber(20,0).notNull(),
-    email: new SVarchar().notNull(),
-    is_verified: new SBoolean().notNull(),
-    first_name: new SVarchar().notNull(),
-    last_name: new SVarchar(),
+    user_id: sNumber(20,0).notNull(),
+    email: sVarchar().notNull(),
+    is_verified: sBoolean().notNull(),
+    first_name: sVarchar().notNull(),
+    last_name: sVarchar(),
   },
 } satisfies TConfig;
 
 export const orders = {
   tRef: { db: dbName, schema: schemaName, table: 'orders' },
   tSchema: {
-    order_id: new SNumber(38,0).notNull(),
-    user_id: new SNumber(20,0).notNull(),
-    order_date: new SDate().notNull(),
-    total: new SNumber(38,2).notNull(),
+    order_id: sNumber(38,0).notNull(),
+    user_id: sNumber(20,0).notNull(),
+    order_date: sDate().notNull(),
+    total: sNumber(38,2).notNull(),
   },
 } satisfies TConfig;
+
 
 export const order_items = {
   tRef: { db: dbName, schema: schemaName, table: 'order_items' },
   tSchema: {
-    order_id: new SNumber(38,0).notNull(),
-    sku: new SVarchar().notNull(),
-    quantity: new SNumber(38,0).notNull(),
-    line_total: new SNumber(38,2).notNull(),
+    order_id: sNumber(38,0).notNull(),
+    sku: sVarchar().notNull(),
+    quantity: sNumber(38,0).notNull(),
+    line_total: sNumber(38,2).notNull(),
   },
 } satisfies TConfig;
 
 export const currencies = {
   tRef: { db: dbName, schema: schemaName, table: 'currencies' },
   tSchema: {
-    full_name: new SVarchar().notNull(),
-    max_denom: new SNumber(38,2),
-    is_active: new SBoolean().notNull(),
-    created_date: new SDate().notNull(),
-    created_ts: new STimestamp().notNull(),
+    full_name: sVarchar().notNull(),
+    max_denom: sNumber(38,2),
+    is_active: sBoolean().notNull(),
+    created_date: sDate().notNull(),
+    created_ts: sTimestamp().notNull(),
   },
 } satisfies TConfig;
 

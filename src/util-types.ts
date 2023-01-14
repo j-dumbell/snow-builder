@@ -5,7 +5,7 @@ export type TRef = { db: string; schema: string; table: string };
 
 type SPrim = string | number | Date | boolean;
 
-export type TSchema = Record<string, SType<SPrim>>;
+export type TSchema = Record<string, SType<SPrim, boolean>>;
 
 export type TConfig = {
   tRef: TRef;

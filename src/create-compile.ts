@@ -8,7 +8,7 @@ export const createCompile = (
 ): string => {
   const replaceSql = replace ? 'OR REPLACE' : '';
   const columnsSql = Object.entries(tSchema)
-    .map(([fName, fConfig]) => `${fName} ${fConfig.ddl()} ${fConfig.isNullable ? '' : 'NOT NULL'}`)
+    .map(([fName, fConfig]) => `${fName} ${fConfig.ddl()}`)
     .join(',');
   const sql = `CREATE ${replaceSql} TABLE ${tRefToSql(tRef)} (${columnsSql});`;
   return sqlFormat(sql);
