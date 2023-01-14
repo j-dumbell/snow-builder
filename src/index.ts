@@ -9,4 +9,4 @@ export { WhereBuilder } from './builders/where-builder';
 export { Db } from './db';
 export { SelectFns, WhereFns, OrderByFns } from './sf-functions';
 export { sVarchar, sNumber, sBoolean, sDate, sTimestamp, sTime } from './sf-types';
-export { TRef, TSchema, TConfig, DBConfig, Table } from './util-types';
+export { TRef, TSchema, TConfig, DBConfig, Table, TableFromConfig } from './util-types';

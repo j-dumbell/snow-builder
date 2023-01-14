@@ -55,7 +55,7 @@ const result = await db
     f.sum('o.total').as('user_total'),
   ])
   .where('u.is_verified', '=', true)
-  .groupBy('u.user_id)
+  .groupBy('u.user_id')
   .orderBy('u.first_name')
   .limit(10);
 ```
