@@ -1,4 +1,10 @@
-import { sBoolean, sDate, sNumber, sTimestamp, sVarchar } from '../src/sf-types';
+import {
+  sBoolean,
+  sDate,
+  sNumber,
+  sTimestamp,
+  sVarchar,
+} from '../src/sf-types';
 import { DBConfig, TableFromConfig, TConfig } from '../src/util-types';
 import { dbName, schemaName } from './config';
 
@@ -37,7 +43,7 @@ export const currencies = {
   tRef: { db: dbName, schema: schemaName, table: 'currencies' },
   tSchema: {
     full_name: sVarchar().notNull(),
-    max_denom: sNumber(38,2),
+    max_denom: sNumber(38, 2),
     is_active: sBoolean().notNull(),
     created_date: sDate().notNull(),
     created_ts: sTimestamp().notNull(),

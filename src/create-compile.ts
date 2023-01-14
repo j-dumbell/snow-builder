@@ -11,13 +11,12 @@ const sTypeToDDL = (fConfig: FConfig): string => {
       return `VARCHAR${argsSql}`;
     })
     .with({ _tag: 'number' }, (x) => `NUMBER(${x.precision},${x.scale})`)
-    .with({_tag: 'timestamp'}, (x) => `TIMESTAMP${x.tz ? `_${x.tz}` : ''}`)
-    .with({_tag: 'time'}, (x) => `TIME${x.precision ? `(${x.precision})` : ''}`)
+    .with({ _tag: 'timestamp' }, (x) => `TIMESTAMP${x.tz ? `_${x.tz}` : ''}`)
     .with(
-      { _tag: 'boolean' },
-      { _tag: 'date' },
-      (x) => `${x._tag}`,
+      { _tag: 'time' },
+      (x) => `TIME${x.precision ? `(${x.precision})` : ''}`,
     )
+    .with({ _tag: 'boolean' }, { _tag: 'date' }, (x) => `${x._tag}`)
     .exhaustive();
   const nullSql = fConfig.nullable ? '' : ' NOT NULL';
 
