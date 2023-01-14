@@ -80,7 +80,8 @@ export type FConfig =
   | SFNumber<number, boolean>
   | SFBoolean<boolean, boolean>
   | SFDate<boolean>
-  | SFTimestamp<boolean>;
+  | SFTimestamp<boolean>
+  | SFTime<boolean>;
 
 export type FConfigToTS<T extends FConfig> = T['nullable'] extends true
   ? NonNullable<T['_type']> | null
