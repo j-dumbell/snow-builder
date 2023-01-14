@@ -13,12 +13,20 @@
 </p>
 
 ## About
+
 Type-safe NodeJS query builder library for [Snowflake](https://www.snowflake.com/en/) with smart return type inference, written in Typescript.
 
-
 ## Usage
+
 ```typescript
-import { TConfig, sNumber, sVarchar, sBoolean, DBConfig, Db } from 'snow-builder/dist/index';
+import {
+  TConfig,
+  sNumber,
+  sVarchar,
+  sBoolean,
+  DBConfig,
+  Db,
+} from 'snow-builder/dist/index';
 
 const users = {
   tRef: { db: dbName, schema: schemaName, table: 'users' },
@@ -50,10 +58,7 @@ const db = new Db(conn, dbConfig);
 const result = await db
   .selectFrom('users', 'u')
   .innerJoin('users', 'u', 'o.user_id', 'u.user_id')
-  .select((f) => [
-    'u.user_id',
-    f.sum('o.total').as('user_total'),
-  ])
+  .select((f) => ['u.user_id', f.sum('o.total').as('user_total')])
   .where('u.is_verified', '=', true)
   .groupBy('u.user_id')
   .orderBy('u.first_name')
