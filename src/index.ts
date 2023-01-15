@@ -23,4 +23,5 @@ export {
   DBConfig,
   Table,
   TableFromConfig,
+  TInsert,
 } from './util-types';
