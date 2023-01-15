@@ -26,8 +26,9 @@ Supports the following SQL operations in Snowflake:
 - `INSERT INTO` rows directly, or the result of a `SELECT` query.
 - `CREATE TABLE`
 
-## DB configuration
+## Usage
 ---
+### DB configuration
 
 Instantiate a `Db` instance by passing a [Snowflake NodeJS SDK connection](https://docs.snowflake.com/en/user-guide/nodejs-driver-use.html#establishing-connections) and table definitions.  Managing the lifecycle of the Snowflake connection (e.g. connecting & destroying) is not handled by snow-builder.
 
@@ -69,7 +70,7 @@ const dbConfig = {
 const db = new Db(conn, dbConfig);
 ```
 
-## Select queries
+### Select queries
 ```typescript
 const result = await db
   .selectFrom('users', 'u')
@@ -82,9 +83,10 @@ const result = await db
   .findMany();
 ```
 
-## Inserts
+### Inserts
 
-### From Records
+**From Records**
+
 Use the generic type `TInsert` together with the table's `tSchema` property to create the corresponding object type.  Snowflake column types are mapped to object properties as per the [Snowflake NodeJS SDK mapping](https://docs.snowflake.com/en/user-guide/nodejs-driver-use.html#data-type-casting).  Nullable columns are represented by optional properties.
 ```typescript
 import { TInsert } from 'snow-builder';
@@ -96,9 +98,26 @@ const newUsers: User[] = [
     user_id: 1,
     email: 'blah@gmail.com',
     is_verified: true,
-    // 'first_name' is optional prop since nullable
+    // 'first_name' is optional since nullable
   },
 ];
 
 const result = await db.insertInto('users', newUsers);
+```
+
+**From Select**
+
+The select query's return type must resolve to the same type as the table's corresponding object type (after calling `TInsert`). Nullable fields in the table may be omitted from the select query.
+```typescript
+const query = db
+  .selectFrom('orders', 'o')
+  .select((f) => [
+    'o.user_id', 
+    s<string>(`'new_email@gmail.com'`).as('email'),
+    s<boolean>('true').as('is_verified'),
+  ])
+  .where('o.user_id', '=', 1)
+  .limit(1);
+
+const result = await db.insertInto('users', query);
 ```
