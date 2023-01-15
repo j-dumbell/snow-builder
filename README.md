@@ -19,7 +19,6 @@ Type-safe NodeJS query builder library for <a href="https://www.snowflake.com/en
 <br/>
 
 ## Features
----
 
 Supports the following SQL operations in Snowflake:
 - `SELECT` statements, including all SQL clauses and subqueries.
@@ -27,7 +26,7 @@ Supports the following SQL operations in Snowflake:
 - `CREATE TABLE`
 
 ## Usage
----
+
 ### DB configuration
 
 Instantiate a `Db` instance by passing a [Snowflake NodeJS SDK connection](https://docs.snowflake.com/en/user-guide/nodejs-driver-use.html#establishing-connections) and table definitions.  Managing the lifecycle of the Snowflake connection (e.g. connecting & destroying) is not handled by snow-builder.
@@ -105,7 +104,7 @@ const newUsers: User[] = [
 const result = await db.insertInto('users', newUsers);
 ```
 
-**From Select**
+**From Select:**
 
 The select query's return type must resolve to the same type as the table's corresponding object type (after calling `TInsert`). Nullable fields in the table may be omitted from the select query.
 ```typescript
