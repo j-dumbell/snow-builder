@@ -11,8 +11,8 @@ Type-safe NodeJS query builder library for <a href="https://www.snowflake.com/en
     <a href="https://github.com/j-dumbell/snow-builder/blob/main/LICENSE">
       <img src="https://img.shields.io/badge/License-MIT-yellow.svg" />
     </a>
-    <a href="https://www.npmjs.com/package/snow-builder">
-      <img src="https://badge.fury.io/js/snow-builder.svg" />
+    <a href="https://badge.fury.io/js/snow-builder">
+        <img src="https://badge.fury.io/js/snow-builder.svg">
     </a>
 </p>
 
