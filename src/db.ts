@@ -47,7 +47,7 @@ export class Db<DB extends DBConfig> {
     );
   }
 
-  /** Insert into the provided table.  Can insert an array of records
+  /** INSERT INTO the provided table.  Can insert an array of records,
    * or the result of a SELECT query via db.selectFrom.
   */
   async insertInto<TName extends keyof DB & string>(
