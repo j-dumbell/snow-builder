@@ -21,6 +21,7 @@ Type-safe NodeJS query builder library for <a href="https://www.snowflake.com/en
 ## Features
 
 Supports the following SQL operations in Snowflake:
+
 - `SELECT` statements, including all SQL clauses and subqueries.
 - `INSERT INTO` rows directly, or the result of a `SELECT` query.
 - `CREATE TABLE`
@@ -29,7 +30,7 @@ Supports the following SQL operations in Snowflake:
 
 ### DB configuration
 
-Instantiate a `Db` instance by passing a [Snowflake NodeJS SDK connection](https://docs.snowflake.com/en/user-guide/nodejs-driver-use.html#establishing-connections) and table definitions.  Managing the lifecycle of the Snowflake connection (e.g. connecting & destroying) is not handled by snow-builder.
+Instantiate a `Db` instance by passing a [Snowflake NodeJS SDK connection](https://docs.snowflake.com/en/user-guide/nodejs-driver-use.html#establishing-connections) and table definitions. Managing the lifecycle of the Snowflake connection (e.g. connecting & destroying) is not handled by snow-builder.
 
 ```typescript
 import {
@@ -70,6 +71,7 @@ const db = new Db(conn, dbConfig);
 ```
 
 ### Select queries
+
 ```typescript
 const result = await db
   .selectFrom('users', 'u')
@@ -86,7 +88,8 @@ const result = await db
 
 **From Records**
 
-Use the generic type `TInsert` together with the table's `tSchema` property to create the corresponding object type.  Snowflake column types are mapped to object properties as per the [Snowflake NodeJS SDK mapping](https://docs.snowflake.com/en/user-guide/nodejs-driver-use.html#data-type-casting).  Nullable columns are represented by optional properties.
+Use the generic type `TInsert` together with the table's `tSchema` property to create the corresponding object type. Snowflake column types are mapped to object properties as per the [Snowflake NodeJS SDK mapping](https://docs.snowflake.com/en/user-guide/nodejs-driver-use.html#data-type-casting). Nullable columns are represented by optional properties.
+
 ```typescript
 import { TInsert } from 'snow-builder';
 
@@ -107,11 +110,12 @@ const result = await db.insertInto('users', newUsers);
 **From Select:**
 
 The select query's return type must resolve to the same type as the table's corresponding object type (after calling `TInsert`). Nullable fields in the table may be omitted from the select query.
+
 ```typescript
 const query = db
   .selectFrom('orders', 'o')
   .select((f) => [
-    'o.user_id', 
+    'o.user_id',
     s<string>(`'new_email@gmail.com'`).as('email'),
     s<boolean>('true').as('is_verified'),
   ])
