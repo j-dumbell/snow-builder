@@ -5,8 +5,8 @@ import { seed } from '../test/seed';
 import { getEnvOrThrow } from './utils';
 import { destroy } from './sf-promise';
 import * as dotenv from 'dotenv';
-import { execute } from './sf-promise';
-import { TInsert } from './util-types';
+import { execute, findOne } from './sf-promise';
+import { TInsert, TRef } from './util-types';
 import { dbName, roleName, schemaName, whName } from '../test/config';
 
 dotenv.config();
@@ -241,4 +241,48 @@ describe('SF IT', () => {
       });
     });
   });
+
+  describe('drop', () => {
+    const tName: keyof typeof dbConfig = 'currencies';
+
+    afterEach(async () => {
+      await db.createAllTables(true);
+    });
+
+    it('dropTable', async () => {
+      await db.dropTable(tName);
+      await assertTableNotExists(conn, dbConfig.currencies.tRef);
+    });
+
+    it('dropAllTables', async () => {
+      await db.dropAllTables();
+      await Promise.all(
+        Object.values(dbConfig).map(({ tRef }) =>
+          assertTableNotExists(conn, tRef),
+        ),
+      );
+    });
+  });
 });
+
+const tableExists = async (conn: Connection, tRef: TRef): Promise<boolean> => {
+  const existsSql = `SELECT * FROM ${dbName}.information_schema.tables where table_schema = '${tRef.schema}' and table_name = '${tRef.table}'`;
+  const result = await findOne(conn, existsSql);
+  return result !== undefined;
+};
+
+const assertTableExists = async (
+  conn: Connection,
+  tRef: TRef,
+): Promise<void> => {
+  const exists = await tableExists(conn, tRef);
+  expect(exists).toEqual(true);
+};
+
+const assertTableNotExists = async (
+  conn: Connection,
+  tRef: TRef,
+): Promise<void> => {
+  const exists = await tableExists(conn, tRef);
+  expect(exists).toEqual(false);
+};

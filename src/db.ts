@@ -66,20 +66,24 @@ export class Db<DB extends DBConfig> {
     await execute(this.sf, sqlFormat(sql));
   }
 
-  async createTables(
-    tableNames: (keyof DB & string)[],
-    replace: boolean,
-  ): Promise<void> {
-    await Promise.all(
-      tableNames.map((tName) => {
-        const sql = createCompile(this.dbConfig[tName], replace);
-        return execute(this.sf, sql);
-      }),
-    );
+  async createTable(tableName: keyof DB, replace: boolean): Promise<void> {
+    const sql = createCompile(this.dbConfig[tableName], replace);
+    await execute(this.sf, sql);
   }
 
   async createAllTables(replace: boolean): Promise<void> {
     const tNames = Object.keys(this.dbConfig);
-    await this.createTables(tNames, replace);
+    await Promise.all(tNames.map((tName) => this.createTable(tName, replace)));
+  }
+
+  async dropTable(tableName: keyof DB): Promise<void> {
+    const tRefSql = tRefToSql(this.dbConfig[tableName].tRef);
+    const sql = `DROP TABLE IF EXISTS ${tRefSql};`;
+    await execute(this.sf, sql);
+  }
+
+  async dropAllTables(): Promise<void> {
+    const tNames = Object.keys(this.dbConfig);
+    await Promise.all(tNames.map((tName) => this.dropTable(tName)));
   }
 }
