@@ -1,8 +1,16 @@
 import { Aliased } from './builders/from-builder';
 import { FConfig, FConfigToTS } from './sf-types';
 
+/** 
+ * Contains the full reference to a SF table, split into the component parts
+ * of database, schema and table names.
+ * */
 export type TRef = { db: string; schema: string; table: string };
 
+/** 
+ * Represents a SF table's schema, with 1 entry per column.  Each key is a column name
+ * and each value is the column's associated type and nullability.
+ * */
 export type TSchema = Record<string, FConfig>;
 
 export type TConfig = {
@@ -26,6 +34,7 @@ export type SetNullableKeysToOptional<T> = {
     : K]?: T[K];
 };
 
+/** Returns the accepted object type for inserting records */
 export type TInsert<T extends TSchema> = SetNullableKeysToOptional<
   TableFromConfig<T>
 >;

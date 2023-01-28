@@ -23,7 +23,11 @@ export type RightTable<
   ? TableFromConfig<DB[T]['tSchema']>
   : InferRType<T>;
 
+
+/** A query that includes a FROM clause */
 export class FromBuilder<DB extends DBConfig, Fields extends Table> {
+
+  /** Should not be instantiated directly.  Use db.selectFrom instead. */
   constructor(
     public sf: Connection,
     private dbConfig: DB,
@@ -62,6 +66,7 @@ export class FromBuilder<DB extends DBConfig, Fields extends Table> {
     >(this.sf, this.dbConfig, newQueryConfig);
   }
 
+  /** Adds an INNER JOIN clause to the query */
   innerJoin<
     TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
@@ -80,6 +85,7 @@ export class FromBuilder<DB extends DBConfig, Fields extends Table> {
     );
   }
 
+  /** Adds a LEFT JOIN clause to the query */
   leftJoin<
     TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
@@ -98,6 +104,7 @@ export class FromBuilder<DB extends DBConfig, Fields extends Table> {
     );
   }
 
+  /** Adds a RIGHT JOIN clause to the query */
   rightJoin<
     TName extends (keyof DB & string) | Executable<Table>,
     TAlias extends ValidFirstCharAlias,
@@ -116,6 +123,7 @@ export class FromBuilder<DB extends DBConfig, Fields extends Table> {
     );
   }
 
+  /** Adds a SELECT clause to the query */
   select<Selected extends Selectable<Fields>[]>(
     selected: ((f: SelectFns<Fields>) => Selected) | Selected,
   ): SelectBuilder<Fields, SelectableToObject<Fields, Selected>> {
