@@ -47,6 +47,9 @@ export class Db<DB extends DBConfig> {
     );
   }
 
+  /** Insert into the provided table.  Can insert an array of records
+   * or the result of a SELECT query via db.selectFrom.
+  */
   async insertInto<TName extends keyof DB & string>(
     table: TName,
     recordsOrSelect: Insertable<DB, TName>,
@@ -66,22 +69,26 @@ export class Db<DB extends DBConfig> {
     await execute(this.sf, sqlFormat(sql));
   }
 
+  /** Create or optionally replace the provided table */
   async createTable(tableName: keyof DB, replace: boolean): Promise<void> {
     const sql = createCompile(this.dbConfig[tableName], replace);
     await execute(this.sf, sql);
   }
 
+  /** Create or optionally replace all tables in the DB configuration */
   async createAllTables(replace: boolean): Promise<void> {
     const tNames = Object.keys(this.dbConfig);
     await Promise.all(tNames.map((tName) => this.createTable(tName, replace)));
   }
 
+  /** Drop the provided table if it exists */
   async dropTable(tableName: keyof DB): Promise<void> {
     const tRefSql = tRefToSql(this.dbConfig[tableName].tRef);
     const sql = `DROP TABLE IF EXISTS ${tRefSql};`;
     await execute(this.sf, sql);
   }
 
+  /** Drop all tables in the DB configuration if they exist */
   async dropAllTables(): Promise<void> {
     const tNames = Object.keys(this.dbConfig);
     await Promise.all(tNames.map((tName) => this.dropTable(tName)));
